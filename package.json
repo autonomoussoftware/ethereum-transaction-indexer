@@ -1,0 +1,24 @@
+{
+  "name": "ethereum-blockchain-indexer",
+  "version": "0.1.0",
+  "description": "Simple indexer service for Ethereum blockchains",
+  "main": "server.js",
+  "author": "Gabriel Montes <gabriel@bloq.com>",
+  "dependencies": {
+    "config": "^1.29.4",
+    "debug": "^3.1.0",
+    "hiredis": "^0.5.0",
+    "promise-all-props": "^1.0.1",
+    "redis": "^2.8.0",
+    "restify": "^6.3.4",
+    "web3": "^1.0.0-beta.29"
+  },
+  "devDependencies": {
+    "eslint": "^4.17.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1"
+  }
+}
