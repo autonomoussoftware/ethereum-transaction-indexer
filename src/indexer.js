@@ -8,11 +8,11 @@ const db = require('./db')
 const toLowerCase = str => str.toLowerCase()
 
 // store parsed address to transaction data in the db
-function storeParsedInfo (data) {
+function storeParsedInfo ({ number, data }) {
   return Promise.all(data.map(function ({ hash, addresses }) {
     return Promise.all(addresses.map(toLowerCase).map(function (address) {
       console.log('Indexed', address, hash)
-      return db.sadd(address, hash)
+      return db.zadd(address, number, hash)
     }))
   }))
 }
@@ -36,7 +36,7 @@ function indexNextBlock (number) {
 
       return parseBlock(number)
         .then(function (data) {
-          return storeParsedInfo(data)
+          return storeParsedInfo({ number, data })
         }).then(function () {
           console.log('New best block', number)
           return db.set('best-block', number)

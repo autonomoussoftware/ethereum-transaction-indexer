@@ -8,14 +8,23 @@ client.on('error', function (err) {
   console.error('ERROR', err)
 })
 
+// string keys
 const get = util.promisify(client.get.bind(client))
 const set = util.promisify(client.set.bind(client))
+
+// sets
 const sadd = util.promisify(client.sadd.bind(client))
 const smembers = util.promisify(client.smembers.bind(client))
+
+// sorted sets
+const zadd = util.promisify(client.zadd.bind(client))
+const zrangebyscore = util.promisify(client.zrangebyscore.bind(client))
 
 module.exports = {
   get,
   set,
   sadd,
-  smembers
+  smembers,
+  zadd,
+  zrangebyscore
 }

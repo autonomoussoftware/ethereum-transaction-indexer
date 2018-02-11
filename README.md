@@ -17,9 +17,9 @@ Install dependencies with `npm install` and then start the server with `npm star
 
 ## REST API
 
-### `GET /addresses/:address/transactions`
+### `GET /addresses/:address/transactions[?from=<min>&to=<max>]`
 
-Will return a JSON array having all transaction IDs related to the given address.
+Will return a JSON array having all transaction IDs related to the given address. Optionally specify `min` and `max` to limit the query to only that block range.
 
 ### `GET /blocks/latest/number`
 

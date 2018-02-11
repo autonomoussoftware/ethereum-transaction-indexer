@@ -5,6 +5,8 @@ const db = require('./db')
 
 const server = restify.createServer()
 
+server.use(restify.plugins.queryParser())
+
 function logRequest (req, res, next) {
   console.log('-->', req.url)
   return next()
@@ -14,11 +16,15 @@ server.use(logRequest)
 
 function getAddressTransactions (req, res, next) {
   const address = req.params.address.toLowerCase()
-  db.smembers(address)
-    .then(function (transactions) {
-      console.log('<--', address, transactions.length)
-      res.json(transactions)
-      next()
+  const { from = 0, to } = req.query
+  return Promise.resolve(to || db.get('best-block'))
+    .then(function (max) {
+      return db.zrangebyscore(address, from, max)
+        .then(function (transactions) {
+          console.log('<--', address, transactions.length)
+          res.json(transactions)
+          next()
+        })
     })
 }
 
