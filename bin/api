@@ -1,0 +1,4 @@
+#! /usr/bin/env node
+
+const api = require('../src/api')
+api.start()

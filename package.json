@@ -1,9 +1,14 @@
 {
   "name": "ethereum-blockchain-indexer",
-  "version": "0.1.0",
-  "description": "Simple indexer service for Ethereum blockchains",
-  "main": "server.js",
+  "version": "1.0.0",
+  "description": "🗂 Simple indexer service for Ethereum blockchains",
+  "main": "index.js",
   "author": "Gabriel Montes <gabriel@bloq.com>",
+  "scripts": {
+    "start": "node index",
+    "api": "./bin/api",
+    "indexer": "./bin/indexer"
+  },
   "dependencies": {
     "config": "^1.29.4",
     "debug": "^3.1.0",

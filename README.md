@@ -1,6 +1,6 @@
 # Simple indexer service for Ethereum blockchains
 
-This service will index an Ethereum blockchain and provide a REST API to query all transactions related to a give address.
+> 🗂 This service will index an Ethereum blockchain and provide a REST API to query all transactions related to a give address.
 
 ## Requirements
 
