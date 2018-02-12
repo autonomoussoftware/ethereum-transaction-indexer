@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": "Gabriel Montes <gabriel@bloq.com>",
   "scripts": {
-    "start": "node index",
+    "start": "node server",
     "api": "./bin/api",
     "indexer": "./bin/indexer"
   },
