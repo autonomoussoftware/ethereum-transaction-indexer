@@ -1,4 +1,0 @@
-{
-  "jsonRpcApiUrl": "http://localhost:8545",
-  "websocketApiUrl": "ws://localhost:8546"
-}
