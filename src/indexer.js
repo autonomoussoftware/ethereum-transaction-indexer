@@ -2,19 +2,36 @@ const { pauseOnError } = require('config')
 const debug = require('debug')('eis.indexer')
 
 const asyncSetTimeout = require('../lib/async-set-timeout')
-const toLowerCase = require('../lib/to-lowercase')
 
 const { parseBlock } = require('./parser')
 const db = require('./db')
 const web3 = require('./web3')
 
+// store ETH transaction data
+function storeEthTransactions ({ number, data: { addresses, txid } }) {
+  return Promise.all(addresses.map(function (address) {
+    console.log('Indexed', address, number, txid)
+    return db.zadd(`eth:${address}`, number, txid)
+  }))
+}
+
+// store token transaction data
+function storeTokenTransactions ({ number, data: { tokens, txid } }) {
+  return Promise.all(tokens.map(function ({ addresses, token }) {
+    return Promise.all(addresses.map(function (address) {
+      console.log('Indexed', address, token, number, txid)
+      return db.zadd(`tok:${address}:${token}`, number, txid)
+    }))
+  }))
+}
+
 // store parsed address to transaction data in the db
 function storeParsedInfo ({ number, data }) {
-  return Promise.all(data.map(function ({ hash, addresses }) {
-    return Promise.all(addresses.map(toLowerCase).map(function (address) {
-      console.log('Indexed', address, hash)
-      return db.zadd(address, number, hash)
-    }))
+  return Promise.all(data.map(function ({ eth, tok }) {
+    return Promise.all([
+      storeEthTransactions({ number, data: eth }),
+      storeTokenTransactions({ number, data: tok })
+    ])
   }))
 }
 

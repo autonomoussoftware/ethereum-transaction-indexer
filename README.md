@@ -17,9 +17,13 @@ Install dependencies with `npm install` and then start the server with `npm star
 
 ## REST API
 
-### `GET /addresses/:address/transactions[?from=<min>&to=<max>]`
+### `GET /addresses/:address/transactions[?from=<number>&to=<number>]`
 
-Will return a JSON array having all transaction IDs related to the given address. Optionally specify `min` and `max` to limit the query to only that block range.
+Will return a JSON array having all transaction IDs related to the given address. Optionally specify `from` and `to` to limit the query to only that block range.
+
+### `GET /addresses/:address/tokentransactions[?tokens=<contracts>from=<number>&to=<number>]`
+
+Will return a JSON array having all transaction IDs related to the given address and token. Optionally specify `from` and `to` to limit the query to only that block range and `tokens` as a comma separated list of token contract addresses.
 
 ### `GET /blocks/latest/number`
 
