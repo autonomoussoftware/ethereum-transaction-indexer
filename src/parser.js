@@ -1,5 +1,5 @@
-const { http: web3 } = require('./web3')
 const debug = require('debug')('parser')
+const web3 = require('./web3')
 
 const DEPLOY_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -22,6 +22,4 @@ function parseBlock (number) {
     })
 }
 
-module.exports = {
-  parseBlock
-}
+module.exports = { parseBlock }

@@ -1,20 +1,11 @@
 const { jsonRpcApiUrl, websocketApiUrl } = require('config')
 const Web3 = require('web3')
 
-function memoize (fn) {
-  let result
-  return function () {
-    if (!result) {
-      result = fn()
-    }
-    return result
-  }
-}
+const web3 = new Web3(new Web3.providers.HttpProvider(jsonRpcApiUrl))
 
-const getHttp = memoize(() => new Web3(new Web3.providers.HttpProvider(jsonRpcApiUrl)))
-const getWs = memoize(() => new Web3(new Web3.providers.WebsocketProvider(websocketApiUrl)))
+const createWsWeb3 = () =>
+  new Web3(new Web3.providers.WebsocketProvider(websocketApiUrl))
 
-module.exports = {
-  get http () { return getHttp() },
-  get ws () { return getWs() }
-}
+Object.defineProperty(web3, 'ws', { get: createWsWeb3 })
+
+module.exports = web3

@@ -1,5 +1,6 @@
 const { apiPort } = require('config')
 const restify = require('restify')
+const debug = require('debug')('eis.api')
 
 const db = require('./db')
 
@@ -8,7 +9,7 @@ const server = restify.createServer()
 server.use(restify.plugins.queryParser())
 
 function logRequest (req, res, next) {
-  console.log('-->', req.url)
+  debug('-->', req.url)
   return next()
 }
 
@@ -21,7 +22,7 @@ function getAddressTransactions (req, res, next) {
     .then(function (max) {
       return db.zrangebyscore(address, from, max)
         .then(function (transactions) {
-          console.log('<--', address, transactions.length)
+          debug('<--', address, transactions.length)
           res.json(transactions)
           next()
         })

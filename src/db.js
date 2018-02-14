@@ -5,7 +5,7 @@ const util = require('util')
 const client = redis.createClient({ url: redisUrl })
 
 client.on('error', function (err) {
-  console.error('ERROR', err)
+  console.error('Redis error', err)
 })
 
 // string keys

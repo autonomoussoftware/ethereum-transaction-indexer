@@ -1,11 +1,12 @@
 const { pauseOnError } = require('config')
-const debug = require('debug')('indexer')
+const debug = require('debug')('eis.indexer')
+
+const asyncSetTimeout = require('../lib/async-set-timeout')
+const toLowerCase = require('../lib/to-lowercase')
 
 const { parseBlock } = require('./parser')
-const { http: web3http, ws: web3ws } = require('./web3')
 const db = require('./db')
-
-const toLowerCase = str => str.toLowerCase()
+const web3 = require('./web3')
 
 // store parsed address to transaction data in the db
 function storeParsedInfo ({ number, data }) {
@@ -17,71 +18,62 @@ function storeParsedInfo ({ number, data }) {
   }))
 }
 
-// settimeout promisified
-function asyncSetTimeout (timeout) {
-  return new Promise(function (resolve) {
-    setTimeout(resolve, timeout)
-  })
-}
-
-// index the next block recursively up to the latest
-function indexNextBlock (number) {
-  debug('indexNextBlock', number)
-  return web3http.eth.getBlockNumber()
-    .then(function (latest) {
-      if (number > latest) {
-        debug('Already at top', latest)
+// index a single block and then recursively up
+function indexBlocks (number) {
+  debug('Indexing block', number)
+  return db.get('best-block')
+    .then(best => Number.parseInt('' + best, 10))
+    .then(function (best) {
+      if (best >= number) {
+        debug('Already indexed', number)
         return
       }
-
-      return parseBlock(number)
+      const next = best + 1
+      return parseBlock(next)
         .then(function (data) {
-          return storeParsedInfo({ number, data })
+          return storeParsedInfo({ number: next, data })
         }).then(function () {
-          console.log('New best block', number)
-          return db.set('best-block', number)
+          console.log('New best block', next)
+          return db.set('best-block', next)
         }).then(function () {
-          return number + 1
-        }).then(function (next) {
-          return indexNextBlock(next)
+          return indexBlocks(number)
         })
     })
-    .catch(function (err) {
-      console.warn('WARN', err)
-      return asyncSetTimeout(pauseOnError)
-        .then(() => indexNextBlock(number))
-    })
 }
 
-// parse the block looking for addresses in transactions
-function parseBlockNumber (number) {
-  return Number.parseInt('' + number, 10)
+// index all existing blocks in the blockchain
+function indexPastBlocks () {
+  debug('Indexing past blocks')
+  return web3.eth.getBlockNumber()
+    .then(indexBlocks)
 }
 
-// start listening for blocks to parse
-function startBlockListener () {
-  console.log('Starting block listener')
-  web3ws.eth.subscribe('newBlockHeaders')
+// start listening for new blocks to index
+function indexIncomingBlocks () {
+  debug('Starting block listener')
+  web3.ws.eth.subscribe('newBlockHeaders')
     .on('data', function ({ number }) {
-      indexNextBlock(number)
+      debug('New block', number)
+      indexBlocks(number)
         .catch(function (err) {
-          console.error('ERROR', err)
+          console.error('Import block error', err)
         })
     })
     .on('error', function (err) {
-      console.error('ERROR', err)
+      console.error('Subscription error', err)
+      asyncSetTimeout(pauseOnError)
+        .then(() => start())
     })
 }
 
-// start indexing the by the next block
+// start indexing
 function start () {
-  return db.get('best-block')
-    .then(function (best) {
-      console.log('Current best block', best || 'none')
-      return indexNextBlock(best ? parseBlockNumber(best) + 1 : 0)
-    })
-    .then(function () {
-      startBlockListener()
+  return indexPastBlocks()
+    .then(indexIncomingBlocks)
+    .catch(function (err) {
+      console.warn('Index block failed', err)
+      return asyncSetTimeout(pauseOnError)
+        .then(() => start())
     })
 }
 
