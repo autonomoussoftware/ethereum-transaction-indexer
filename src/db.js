@@ -20,11 +20,15 @@ const smembers = util.promisify(client.smembers.bind(client))
 const zadd = util.promisify(client.zadd.bind(client))
 const zrangebyscore = util.promisify(client.zrangebyscore.bind(client))
 
+// utils
+const keys = util.promisify(client.keys.bind(client))
+
 module.exports = {
   get,
   set,
   sadd,
   smembers,
   zadd,
-  zrangebyscore
+  zrangebyscore,
+  keys
 }
