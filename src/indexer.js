@@ -22,13 +22,14 @@ function storeParsedInfo ({ number, data }) {
 function indexBlocks (number) {
   debug('Indexing block', number)
   return db.get('best-block')
-    .then(best => Number.parseInt('' + best, 10))
+    .then(best => Number.parseInt(best || '-1', 10))
     .then(function (best) {
       if (best >= number) {
         debug('Already indexed', number)
         return
       }
       const next = best + 1
+
       return parseBlock(next)
         .then(function (data) {
           return storeParsedInfo({ number: next, data })
