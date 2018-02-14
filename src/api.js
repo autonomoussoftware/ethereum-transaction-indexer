@@ -3,6 +3,8 @@ const restify = require('restify')
 const debug = require('debug')('eis.api')
 const promiseAllProps = require('promise-all-props')
 
+const merge = require('../lib/merge')
+
 const db = require('./db')
 
 const server = restify.createServer()
@@ -44,9 +46,11 @@ function getAddressTokenTransactions (req, res, next) {
   })
     .then(function ({ max, sets }) {
       return Promise.all(sets.map(function (set) {
+        const token = set.substr(-42)
         return db.zrangebyscore(set, min, max)
+          .then(transactions => ({ [token]: transactions }))
       }))
-        .then(transactions => [].concat(transactions))
+        .then(merge)
         .then(function (transactions) {
           debug('<-- tok', address, min, max, transactions.length)
           res.json(transactions)
