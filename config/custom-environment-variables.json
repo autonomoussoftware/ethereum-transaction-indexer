@@ -1,0 +1,7 @@
+{
+  "jsonRpcApiUrl": "ENODE_JSON_RPC_API_URL",
+  "websocketApiUrl": "ENODE_WS_API_URL",
+  "pauseOnError": "INDEXER_DELAY_ON_ERROR",
+  "apiPort": "API_PORT",
+  "redisUrl": "REDIS_URL"
+}
