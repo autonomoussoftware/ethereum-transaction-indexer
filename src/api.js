@@ -52,7 +52,7 @@ function getAddressTokenTransactions (req, res, next) {
       }))
         .then(merge)
         .then(function (transactions) {
-          debug('<-- tok', address, min, max, transactions.length)
+          debug('<-- tok', address, min, max, Object.keys(transactions).length)
           res.json(transactions)
           next()
         })
