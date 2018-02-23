@@ -30,5 +30,9 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "nodemon": "^1.14.12"
+  },
+  "engines": {
+    "node": "8",
+    "npm": "5"
   }
 }
