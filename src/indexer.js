@@ -1,7 +1,8 @@
-const { pauseOnError } = require('config')
+const { pauseOnError, websocketApiUrl } = require('config')
 const debug = require('debug')('eis.indexer')
 
 const asyncSetTimeout = require('../lib/async-set-timeout')
+const { subscribe } = require('../lib/web3-block-subscribe')
 
 const { parseBlock } = require('./parser')
 const db = require('./db')
@@ -64,35 +65,36 @@ function indexPastBlocks () {
   debug('Indexing past blocks')
   return web3.eth.getBlockNumber()
     .then(indexBlocks)
+    .catch(function (err) {
+      console.warn('Index past block failed', err)
+      return asyncSetTimeout(pauseOnError)
+        .then(() => indexPastBlocks())
+    })
 }
 
 // start listening for new blocks to index
 function indexIncomingBlocks () {
   debug('Starting block listener')
-  web3.ws.eth.subscribe('newBlockHeaders')
-    .on('data', function ({ number }) {
+
+  subscribe({
+    url: websocketApiUrl,
+    onData: function ({ number }) {
       debug('New block', number)
       indexBlocks(number)
         .catch(function (err) {
-          console.error('Import block error', err)
+          console.warn('Index incoming block error', err)
         })
-    })
-    .on('error', function (err) {
-      console.error('Subscription error', err)
-      asyncSetTimeout(pauseOnError)
-        .then(() => start())
-    })
+    },
+    onError: function (err) {
+      console.warn('Subscription error - Retrying', err)
+    }
+  })
 }
 
 // start indexing
 function start () {
   return indexPastBlocks()
     .then(indexIncomingBlocks)
-    .catch(function (err) {
-      console.warn('Index block failed', err)
-      return asyncSetTimeout(pauseOnError)
-        .then(() => start())
-    })
 }
 
 module.exports = {
