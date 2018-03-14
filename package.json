@@ -5,8 +5,7 @@
   "main": "server.js",
   "author": "Gabriel Montes <gabriel@bloq.com>",
   "scripts": {
-    "start": "node server",
-    "dev": "nodemon server",
+    "dev": "nodemon server.js",
     "dev:api": "./bin/api",
     "dev:indexer": "./bin/indexer",
     "api": "./bin/api",
