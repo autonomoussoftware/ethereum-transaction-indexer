@@ -1,3 +1,5 @@
+'use strict'
+
 const debug = require('debug')('eis.api')
 const promiseAllProps = require('promise-all-props')
 const Router = require('restify-router').Router

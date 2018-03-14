@@ -1,3 +1,5 @@
+'use strict'
+
 const indexer = require('./src/indexer')
 const api = require('./src/api')
 

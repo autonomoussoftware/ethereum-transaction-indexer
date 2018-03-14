@@ -1,3 +1,5 @@
+'use strict'
+
 const { redisUrl } = require('config')
 const redis = require('redis')
 const util = require('util')

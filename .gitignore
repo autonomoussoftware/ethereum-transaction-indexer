@@ -3,6 +3,9 @@
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
+# ESLint
+.eslintcache
+
 # Configuration
 config/local.json
 

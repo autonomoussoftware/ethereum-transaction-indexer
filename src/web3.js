@@ -1,3 +1,5 @@
+'use strict'
+
 const { jsonRpcApiUrl } = require('config')
 const Web3 = require('web3')
 
