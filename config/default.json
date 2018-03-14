@@ -3,5 +3,23 @@
   "websocketApiUrl": "ws://localhost:8546",
   "pauseOnError": 2000,
   "apiPort": 8080,
-  "redisUrl": "redis://localhost:6379"
+  "redisUrl": "redis://localhost:6379",
+  "logger": {
+    "Console": {
+      "colorize": true,
+      "level": "verbose",
+      "prettyPrint": true,
+      "stringify": true
+    },
+    "File": {
+      "colorize": false,
+      "filename": "log/output.log",
+      "json": false,
+      "level": "info",
+      "maxFiles": 1000,
+      "maxsize": 1000000,
+      "prettyPrint": false,
+      "tailable": true
+    }
+  }
 }

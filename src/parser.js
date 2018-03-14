@@ -1,8 +1,10 @@
-const debug = require('debug')('eis.parser')
+'use strict'
+
 const promiseAllProps = require('promise-all-props')
 
 const toLowerCase = require('../lib/to-lowercase')
 
+const logger = require('./logger')
 const web3 = require('./web3')
 
 const DEPLOY_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -27,6 +29,7 @@ function parseTokenTransacion ({ logs, transactionHash }) {
   const tokenLogs = logs.filter(({ topics: [signature] }) =>
     tokenEventSignatures.includes(signature))
   return {
+    // eslint-disable-next-line no-unused-vars
     tokens: tokenLogs.map(function ({ address, topics: [_, from, to] }) {
       return {
         addresses: [from, to].map(topicToAddress).map(toLowerCase),
@@ -39,7 +42,7 @@ function parseTokenTransacion ({ logs, transactionHash }) {
 
 // parse a single block and return address to transaction data
 function parseBlock (number) {
-  debug('Parsing block', number)
+  logger.verbose('Parsing block', number)
   return web3.eth.getBlock(number, true)
     .then(function ({ transactions }) {
       return Promise.all(transactions.map(function (transaction) {

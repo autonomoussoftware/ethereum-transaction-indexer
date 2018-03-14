@@ -1,6 +1,14 @@
-node_modules
-local.json
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Configuration
+config/local.json
+
+# Logs
+log/*
+!log/.gitkeep
+
+# Dependencies
+node_modules
