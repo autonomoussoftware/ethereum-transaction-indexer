@@ -1,4 +1,4 @@
-const debug = require('debug')('parser')
+const debug = require('debug')('eis.parser')
 const promiseAllProps = require('promise-all-props')
 
 const toLowerCase = require('../lib/to-lowercase')
@@ -39,7 +39,7 @@ function parseTokenTransacion ({ logs, transactionHash }) {
 
 // parse a single block and return address to transaction data
 function parseBlock (number) {
-  debug('parseBlock', number)
+  debug('Parsing block', number)
   return web3.eth.getBlock(number, true)
     .then(function ({ transactions }) {
       return Promise.all(transactions.map(function (transaction) {

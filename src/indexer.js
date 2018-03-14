@@ -38,7 +38,7 @@ function storeParsedInfo ({ number, data }) {
 
 // index a single block and then recursively up
 function indexBlocks (number) {
-  debug('Indexing block', number)
+  debug('Indexing up to block', number)
   return db.get('best-block')
     .then(best => Number.parseInt(best || '-1', 10))
     .then(function (best) {
