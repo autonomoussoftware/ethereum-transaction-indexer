@@ -1,12 +1,13 @@
 'use strict'
 
-const debug = require('debug')('eis.api')
 const promiseAllProps = require('promise-all-props')
 const Router = require('restify-router').Router
 
-const db = require('./db')
-const pkg = require('../package')
 const merge = require('../lib/merge')
+const pkg = require('../package')
+
+const db = require('./db')
+const logger = require('./logger')
 
 const router = new Router()
 
@@ -21,7 +22,7 @@ function getAddressTransactions (req, res, next) {
     .then(function (max) {
       return db.zrangebyscore(`eth:${address}`, min, max)
         .then(function (transactions) {
-          debug('<-- eth', address, min, max, transactions.length)
+          logger.info('<-- eth', address, min, max, transactions.length)
           res.json(transactions)
           next()
         })
@@ -46,7 +47,7 @@ function getAddressTokenTransactions (req, res, next) {
       }))
         .then(merge)
         .then(function (transactions) {
-          debug('<-- tok', address, min, max, Object.keys(transactions).length)
+          logger.info('<-- tok', address, min, max, Object.keys(transactions).length)
           res.json(transactions)
           next()
         })
@@ -56,7 +57,7 @@ function getAddressTokenTransactions (req, res, next) {
 function getBestBlockNumber (req, res, next) {
   db.get('best-block')
     .then(function (number) {
-      console.log('<--', number)
+      logger.info('<--', number)
       res.json({ number })
       next()
     })
