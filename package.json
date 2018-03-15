@@ -10,7 +10,8 @@
     "dev:api": "./bin/api",
     "dev:indexer": "./bin/indexer",
     "api": "./bin/api",
-    "indexer": "./bin/indexer"
+    "indexer": "./bin/indexer",
+    "test": "echo TBA"
   },
   "dependencies": {
     "config": "^1.29.4",
