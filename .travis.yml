@@ -1,0 +1,24 @@
+sudo: required
+dist: trusty
+os: linux
+language: node_js
+node_js:
+  - "8"
+
+cache:
+  directories:
+    - "node_modules"
+
+services:
+  - mongodb
+
+deploy:
+  - provider: elasticbeanstalk
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    region: "sa-east-1"
+    app: "ethereum-blockchain-indexer"
+    env: "ethereum-blockchain-indexer-dev"
+    bucket_name: "elasticbeanstalk-sa-east-1-869739316835"
+    on:
+      branch: develop
