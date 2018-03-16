@@ -1,5 +1,21 @@
 {
   "logger": {
-    "Console": false
+    "Console": false,
+    "File": {
+      "colorize": false,
+      "json": false,
+      "level": "info",
+      "maxFiles": 1000,
+      "maxsize": 1000000,
+      "prettyPrint": false,
+      "tailable": true
+    },
+    "Papertrail": {
+      "colorize": true,
+      "flushOnClose": true,
+      "handleExceptions": true,
+      "inlineMetadata": true,
+      "level": "info"
+    }
   }
 }

@@ -7,19 +7,9 @@
   "logger": {
     "Console": {
       "colorize": true,
-      "level": "verbose",
+      "level": "info",
       "prettyPrint": true,
       "stringify": true
-    },
-    "File": {
-      "colorize": false,
-      "filename": "log/output.log",
-      "json": false,
-      "level": "info",
-      "maxFiles": 1000,
-      "maxsize": 1000000,
-      "prettyPrint": false,
-      "tailable": true
     }
   }
 }

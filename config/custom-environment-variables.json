@@ -3,5 +3,15 @@
   "websocketApiUrl": "ENODE_WS_API_URL",
   "pauseOnError": "INDEXER_DELAY_ON_ERROR",
   "apiPort": "PORT",
-  "redisUrl": "REDIS_URL"
+  "redisUrl": "REDIS_URL",
+  "logger": {
+    "File": {
+      "filename": "LOGGER_FILE_NAME"
+    },
+    "Papertrail": {
+      "host": "LOGGER_PAPERTRAIL_HOST",
+      "port": "LOGGER_PAPERTRAIL_PORT",
+      "program": "LOGGER_PAPERTRAIL_PROGRAM"
+    }
+  }
 }
