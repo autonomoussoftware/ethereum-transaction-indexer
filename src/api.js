@@ -1,6 +1,7 @@
 'use strict'
 
 const { apiPort } = require('config')
+const beforeExit = require('before-exit')
 const restify = require('restify')
 
 const logger = require('./logger')
@@ -18,6 +19,10 @@ function logRequest (req, res, next) {
 server.use(logRequest)
 
 function start () {
+  beforeExit.do(function (signal) {
+    logger.error('Shutting down API on signal', signal)
+  })
+
   routes.applyRoutes(server)
 
   server.listen(apiPort, function () {
@@ -25,6 +30,4 @@ function start () {
   })
 }
 
-module.exports = {
-  start
-}
+module.exports = { start }

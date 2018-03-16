@@ -1,6 +1,7 @@
 'use strict'
 
 const { pauseOnError, websocketApiUrl } = require('config')
+const beforeExit = require('before-exit')
 
 const asyncSetTimeout = require('../lib/async-set-timeout')
 const { subscribe } = require('../lib/web3-block-subscribe')
@@ -94,10 +95,12 @@ function indexIncomingBlocks () {
 
 // start indexing
 function start () {
+  beforeExit.do(function (signal) {
+    logger.error('Shutting down indexer on signal', signal)
+  })
+
   return indexPastBlocks()
     .then(indexIncomingBlocks)
 }
 
-module.exports = {
-  start
-}
+module.exports = { start }
