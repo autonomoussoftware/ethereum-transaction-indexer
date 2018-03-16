@@ -5,9 +5,6 @@
   "apiPort": "PORT",
   "redisUrl": "REDIS_URL",
   "logger": {
-    "File": {
-      "filename": "LOGGER_FILE_NAME"
-    },
     "Papertrail": {
       "host": "LOGGER_PAPERTRAIL_HOST",
       "port": "LOGGER_PAPERTRAIL_PORT",
