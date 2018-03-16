@@ -1,19 +1,22 @@
 # Ethereum Blockchain Indexer
 
-> 🗂 Simple indexer service for Ethereum blockchains. This service will index an Ethereum blockchain and provide a REST API to query all transactions related to a give address.
+Simple indexer service for Ethereum blockchains. This service will index an Ethereum blockchain and provide a REST API to query all transactions related to a given address.
 
 ## Requirements
 
 - Node.JS v8
 - Redis v4
+- Ethereum node (i.e. Geth or Parity)
 
 ## Configuration
 
-Create an `<environment>.json` or `hostname.json` file in the `config` folder with specific configuration requirements. Follow the [config ](https://github.com/lorenwest/node-config/) module guidelines.
+Set proper environment variables or create an `<environment>.json` or `hostname.json` file in the `config` folder with specific configuration. Follow the [config ](https://github.com/lorenwest/node-config/) module guidelines.
 
 ## Start
 
-Install dependencies with `npm install` and then start the server with `npm start`.
+Install dependencies with `npm install` and then start the indexer or the API with `npm run indexer` or `npm run api`.
+
+Optionally, for test and development purposes, start both components with `npm start`.
 
 ## REST API
 
