@@ -13,7 +13,7 @@ const web3 = require('./web3')
 // store ETH transaction data
 function storeEthTransactions ({ number, data: { addresses, txid } }) {
   return Promise.all(addresses.map(function (address) {
-    logger.info('Indexed', address, number, txid)
+    logger.info('Transaction indexed', address, number, txid)
     return db.zadd(`eth:${address}`, number, txid)
   }))
 }
@@ -22,7 +22,7 @@ function storeEthTransactions ({ number, data: { addresses, txid } }) {
 function storeTokenTransactions ({ number, data: { tokens, txid } }) {
   return Promise.all(tokens.map(function ({ addresses, token }) {
     return Promise.all(addresses.map(function (address) {
-      logger.info('Indexed', address, token, number, txid)
+      logger.info('Token transaction indexed', address, token, number, txid)
       return db.zadd(`tok:${address}:${token}`, number, txid)
     }))
   }))
@@ -45,7 +45,7 @@ function indexBlocks (number) {
     .then(best => Number.parseInt(best || '-1', 10))
     .then(function (best) {
       if (best >= number) {
-        logger.verbose('Already indexed', number)
+        logger.verbose('Block already indexed', number)
         return
       }
       const next = best + 1
@@ -68,7 +68,7 @@ function indexPastBlocks () {
   return web3.eth.getBlockNumber()
     .then(indexBlocks)
     .catch(function (err) {
-      logger.warn('Index past block failed', err)
+      logger.warn('Could not index past block', err)
       return asyncSetTimeout(pauseOnError)
         .then(() => indexPastBlocks())
     })
@@ -77,18 +77,17 @@ function indexPastBlocks () {
 // start listening for new blocks to index
 function indexIncomingBlocks () {
   logger.info('Starting block listener')
-
   subscribe({
     url: websocketApiUrl,
     onData: function ({ number }) {
-      logger.verbose('New block', number)
+      logger.verbose('New block received', number)
       indexBlocks(number)
         .catch(function (err) {
-          logger.warn('Index incoming block error', err)
+          logger.warn('Could not index new block', err)
         })
     },
     onError: function (err) {
-      logger.warn('Subscription error - Retrying', err)
+      logger.warn('Subscription failure', err)
     }
   })
 }
