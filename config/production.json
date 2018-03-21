@@ -5,7 +5,7 @@
       "colorize": true,
       "flushOnClose": true,
       "handleExceptions": true,
-      "inlineMetadata": true,
+      "inlineMeta": true,
       "level": "info"
     }
   }
