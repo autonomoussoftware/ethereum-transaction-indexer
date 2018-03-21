@@ -80,14 +80,14 @@ function indexIncomingBlocks () {
   logger.info('Starting block listener')
   subscribe({
     url: websocketApiUrl,
-    onData: function ({ number }) {
+    onData ({ number }) {
       logger.verbose('New block received', number)
       indexBlocks(number)
         .catch(function (err) {
           logger.warn('Could not index new block', err)
         })
     },
-    onError: function (err) {
+    onError (err) {
       logger.warn('Subscription failure', err)
     }
   })
