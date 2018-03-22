@@ -4,7 +4,8 @@ const { apiPort } = require('config')
 const beforeExit = require('before-exit')
 const restify = require('restify')
 
-const logger = require('./logger')
+const logger = require('../logger')
+
 const routes = require('./routes')
 
 const server = restify.createServer()

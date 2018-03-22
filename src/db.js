@@ -23,16 +23,20 @@ const smembers = util.promisify(client.smembers.bind(client))
 // sorted sets
 const zadd = util.promisify(client.zadd.bind(client))
 const zrangebyscore = util.promisify(client.zrangebyscore.bind(client))
+const zrem = util.promisify(client.zrem.bind(client))
+const zremrangebyscore = util.promisify(client.zremrangebyscore.bind(client))
 
 // utils
 const keys = util.promisify(client.keys.bind(client))
 
 module.exports = {
   get,
-  set,
+  keys,
   sadd,
+  set,
   smembers,
   zadd,
   zrangebyscore,
-  keys
+  zrem,
+  zremrangebyscore
 }

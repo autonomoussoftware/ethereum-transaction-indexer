@@ -1,0 +1,134 @@
+'use strict'
+
+const { pauseOnError, websocketApiUrl } = require('config')
+const beforeExit = require('before-exit')
+const promiseAllProps = require('promise-all-props')
+
+const asyncSetTimeout = require('../../lib/async-set-timeout')
+const debounce = require('../../lib/promise-lead-debounce')
+const inBN = require('../../lib/in-BN')
+const { subscribe } = require('../../lib/web3-block-subscribe')
+
+const logger = require('../logger')
+
+const {
+  getBestBlock,
+  removeData,
+  storeBestBlock,
+  storeData
+} = require('./storage')
+const calculateNextBlock = require('./next')
+const parseBlock = require('./parser')
+const web3 = require('./web3')
+
+// index a single block and store indexed information
+const indexBlock = ({ number, hash }) =>
+  parseBlock(hash)
+    .then(data => storeData({ number, data }))
+
+// rewind all indexed information of a block
+const rewindBlock = ({ hash }) =>
+  parseBlock(hash)
+    .then(data => removeData({ data }))
+
+// get the previous block of a given one
+const previousBlock = ({ hash }) =>
+  web3.eth.getBlock(hash)
+    .then(({ parentHash }) => web3.eth.getBlock(parentHash))
+
+// check if a is less that or equal to b
+const lte = (a, b) => inBN('lte', a, b)
+
+// index a single block considering reorgs
+function indexBlocks (latest) {
+  logger.verbose('Indexing up to block', latest.number, latest.hash)
+  return getBestBlock()
+    .then(function (best) {
+      if (latest.hash === best.hash) {
+        logger.verbose('Block already indexed', latest.hash)
+        return true
+      }
+      if (lte(latest.totalDifficulty, best.totalDifficulty)) {
+        logger.verbose('Not indexing lower difficulty block', latest.hash)
+        return false
+      }
+
+      return calculateNextBlock(best, latest)
+        .then(function (next) {
+          // going up!
+          if (next.parentHash === best.hash) {
+            return indexBlock(next)
+              .then(() => next)
+          }
+
+          // need to go back :(
+          logger.warn('Reorg spotted')
+          return rewindBlock(best)
+            .then(() => previousBlock(best))
+        })
+        .then(storeBestBlock)
+        .then(() => indexBlocks(latest))
+    })
+}
+
+// index as if the latest block is the given block number
+const indexBlockNumber = number =>
+  web3.eth.getBlock(number)
+    .then(indexBlocks)
+
+// recursively index the next block on top of best
+const indexNextBlock = () =>
+  promiseAllProps({
+    latest: web3.eth.getBlock('latest'),
+    best: getBestBlock()
+  })
+    .then(({ latest, best }) =>
+      best.hash === latest.hash ||
+          indexBlockNumber(best.number + 1)
+            .then(indexNextBlock)
+    )
+
+// index all existing blocks in the blockchain from best to current
+function indexPastBlocks () {
+  logger.info('Indexing past blocks')
+  return indexNextBlock()
+    .catch(function (err) {
+      logger.warn('Could not index past block', err)
+      return asyncSetTimeout(pauseOnError)
+        .then(() => indexPastBlocks())
+    })
+}
+
+// start listening for new blocks and index on new incoming
+function indexIncomingBlocks () {
+  logger.info('Starting block listener')
+
+  subscribe({
+    url: websocketApiUrl,
+    onData: debounce(function (header) {
+      logger.verbose('New block received', header.number, header.hash)
+
+      web3.eth.getBlock(header.hash)
+        .then(indexBlocks)
+        .catch(function (err) {
+          logger.warn('Could not index new block', err)
+        })
+    }),
+    onError (err) {
+      logger.warn('Subscription failure', err)
+    }
+  })
+}
+
+// start indexing
+function start () {
+  beforeExit.do(function (signal) {
+    logger.error('Shutting down indexer on signal', signal)
+  })
+
+  return indexPastBlocks()
+    .then(indexIncomingBlocks)
+  // indexIncomingBlocks()
+}
+
+module.exports = { start }
