@@ -8,7 +8,7 @@
   "repository": "autonomoussoftware/ethereum-blockchain-indexer",
   "scripts": {
     "api": "./bin/api",
-    "check": "npm-check -i husky -i eslint-config-plugin:*",
+    "check": "npm-check -p -i husky -i eslint-config-plugin:*",
     "dev": "nodemon server.js",
     "indexer": "./bin/indexer",
     "lint": "eslint --cache .",
