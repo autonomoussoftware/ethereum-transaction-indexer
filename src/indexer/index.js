@@ -6,6 +6,7 @@ const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')
 
 const asyncSetTimeout = require('../../lib/async-set-timeout')
+const callsPerSec = require('../../lib/calls-per-sec')
 const debounce = require('../../lib/promise-lead-debounce')
 const inBN = require('../../lib/in-BN')
 const { subscribe } = require('../../lib/web3-block-subscribe')
@@ -40,6 +41,10 @@ const previousBlock = ({ hash }) =>
 // check if a is less that or equal to b
 const lte = (a, b) => inBN('lte', a, b)
 
+const timedStoreBestBlock = callsPerSec(storeBestBlock, function (speed) {
+  logger.info('Parsing speed [blocks/sec]', speed)
+})
+
 // index a single block considering reorgs
 function indexBlocks (latest) {
   logger.verbose('Indexing up to block', latest.number, latest.hash)
@@ -67,7 +72,7 @@ function indexBlocks (latest) {
           return rewindBlock(best)
             .then(() => previousBlock(best))
         })
-        .then(storeBestBlock)
+        .then(timedStoreBestBlock)
         .then(() => indexBlocks(latest))
     })
 }
@@ -110,6 +115,8 @@ function indexPastBlocks () {
 // start listening for new blocks and index on new incoming
 function indexIncomingBlocks () {
   logger.info('Starting block listener')
+
+  timedStoreBestBlock.stop()
 
   subscribe({
     url: websocketApiUrl,
