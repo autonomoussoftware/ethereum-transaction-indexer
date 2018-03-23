@@ -128,7 +128,6 @@ function start () {
 
   return indexPastBlocks()
     .then(indexIncomingBlocks)
-  // indexIncomingBlocks()
 }
 
 module.exports = { start }
