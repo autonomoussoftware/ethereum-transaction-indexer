@@ -2,6 +2,7 @@
 
 const { pauseOnError, websocketApiUrl } = require('config')
 const beforeExit = require('before-exit')
+const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')
 
 const asyncSetTimeout = require('../../lib/async-set-timeout')
@@ -76,10 +77,17 @@ const indexBlockNumber = number =>
   web3.eth.getBlock(number)
     .then(indexBlocks)
 
+// optimized version of `getBlock('latest')`
+const CACHE_AGE = 1000
+const getLatestBlock = memoize(
+  () => web3.eth.getBlock('latest'),
+  { maxAge: CACHE_AGE }
+)
+
 // recursively index the next block on top of best
 const indexNextBlock = () =>
   promiseAllProps({
-    latest: web3.eth.getBlock('latest'),
+    latest: getLatestBlock(),
     best: getBestBlock()
   })
     .then(({ latest, best }) =>
