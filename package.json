@@ -9,7 +9,7 @@
   "scripts": {
     "api": "./bin/api",
     "check": "dependency-check . && dependency-check . --unused --no-dev",
-    "check:outdated": "npm-check",
+    "check:outdated": "npm-check -p -i husky -i eslint-config-plugin:*",
     "dev": "nodemon server.js",
     "indexer": "./bin/indexer",
     "lint": "eslint --cache .",
