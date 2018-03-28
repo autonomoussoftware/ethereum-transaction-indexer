@@ -1,13 +1,10 @@
 'use strict'
-
 const { apiPort } = require('config')
 const beforeExit = require('before-exit')
 const restify = require('restify')
-
 const logger = require('../logger')
 
 const routes = require('./routes')
-
 const server = restify.createServer()
 
 server.use(restify.plugins.queryParser())
@@ -23,7 +20,6 @@ function start () {
   beforeExit.do(function (signal) {
     logger.error('Shutting down API on signal', signal)
   })
-
   routes.applyRoutes(server)
 
   server.listen(apiPort, function () {

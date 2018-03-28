@@ -1,6 +1,6 @@
 {
-  "jsonRpcApiUrl": "http://localhost:8545",
-  "websocketApiUrl": "ws://localhost:8546",
+  "jsonRpcApiUrl": "http://parity.bloqrock.net:8545",
+  "websocketApiUrl": "ws://parity.bloqrock.net:8546",
   "pauseOnError": 2000,
   "apiPort": 8080,
   "redisUrl": "redis://localhost:6379",

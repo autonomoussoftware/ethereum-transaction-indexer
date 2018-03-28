@@ -3,9 +3,19 @@
 const { logger: loggerConf } = require('config')
 const winston = require('winston')
 require('winston-papertrail')
+require('winston-sentry-transport')
+
+const reqProps = {
+  Sentry: 'dns',
+  Papertrail: 'host'
+}
 
 const transports = Object.keys(loggerConf)
-  .map(t => loggerConf[t] && new winston.transports[t](loggerConf[t]))
+  .map(t =>
+    loggerConf[t] &&
+    loggerConf[t][reqProps[t]] &&
+    new winston.transports[t](loggerConf[t])
+  )
   .filter(t => !!t)
 
 const logger = new winston.Logger({ transports })
