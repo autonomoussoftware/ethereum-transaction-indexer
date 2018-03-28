@@ -3,11 +3,23 @@
 const db = require('../db')
 const logger = require('../logger')
 
+// eslint-disable-next-line max-len
+const NULL_TX_ID = '0x0000000000000000000000000000000000000000000000000000000000000000'
+
+const pub = db.pubsub()
+
+// closes the pubsub connection
+const closePubsub = () => pub.quit()
+
 // store ETH transaction data
 const storeEthTransactions = ({ number, data: { addresses, txid } }) =>
   Promise.all(addresses.map(function (address) {
     logger.info('Transaction indexed', address, number, txid)
     return db.zadd(`eth:${address}`, number, txid)
+      .then(function () {
+        logger.verbose('Publishing tx message', address, txid)
+        return pub.publish(address, `${txid}:tx:confirmed`)
+      })
   }))
 
 // store token transaction data
@@ -16,6 +28,10 @@ const storeTokenTransactions = ({ number, data: { tokens, txid } }) =>
     Promise.all(addresses.map(function (address) {
       logger.info('Token transaction indexed', address, token, number, txid)
       return db.zadd(`tok:${address}:${token}`, number, txid)
+        .then(function () {
+          logger.verbose('Publishing tok message', address, txid)
+          return pub.publish(address, `${txid}:tok:confirmed`)
+        })
     }))
   ))
 
@@ -24,6 +40,10 @@ const removeEthTransactions = ({ data: { addresses, txid } }) =>
   Promise.all(addresses.map(function (address) {
     logger.info('Transaction indexed', address, txid)
     return db.zrem(`eth:${address}`, txid)
+      .then(function () {
+        logger.verbose('Publishing tx removed message', address, txid)
+        return pub.publish(address, `${txid}:tx:removed`)
+      })
   }))
 
 // remove token transaction data
@@ -32,6 +52,10 @@ const removeTokenTransactions = ({ data: { tokens, txid } }) =>
     Promise.all(addresses.map(function (address) {
       logger.info('Token transaction indexed', address, token, txid)
       return db.zrem(`tok:${address}:${token}`, txid)
+        .then(function () {
+          logger.verbose('Publishing tok removed message', address, txid)
+          return pub.publish(address, `${txid}:tok:removed`)
+        })
     }))
   ))
 
@@ -41,7 +65,7 @@ const getBestBlock = () =>
     .then(value =>
       JSON.parse(value) || ({
         number: -1,
-        hash: '0x0000000000000000000000000000000000000000000000000000000000000000', // eslint-disable-line max-len
+        hash: NULL_TX_ID,
         totalDifficulty: '0'
       })
     )
@@ -71,6 +95,7 @@ const removeData = ({ data }) =>
   )
 
 module.exports = {
+  closePubsub,
   getBestBlock,
   removeData,
   storeBestBlock,

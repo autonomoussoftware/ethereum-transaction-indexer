@@ -18,6 +18,7 @@ const { subscribe } = require('../../lib/web3-block-subscribe')
 const logger = require('../logger')
 
 const {
+  closePubsub,
   getBestBlock,
   removeData,
   storeBestBlock,
@@ -144,6 +145,8 @@ function indexIncomingBlocks () {
 function start () {
   beforeExit.do(function (signal) {
     logger.error('Shutting down indexer on signal', signal)
+
+    return closePubsub()
   })
 
   return indexPastBlocks()
