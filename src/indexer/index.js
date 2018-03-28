@@ -1,6 +1,10 @@
 'use strict'
 
-const { pauseOnError, enode: { websocketApiUrl } } = require('config')
+const {
+  pauseOnError,
+  subscriptionTimeout,
+  enode: { websocketApiUrl } 
+} = require('config')
 const beforeExit = require('before-exit')
 const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')
@@ -131,7 +135,8 @@ function indexIncomingBlocks () {
     }),
     onError (err) {
       logger.warn('Subscription failure', err)
-    }
+    },
+    timeout: subscriptionTimeout
   })
 }
 
