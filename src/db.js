@@ -29,9 +29,26 @@ const zremrangebyscore = util.promisify(client.zremrangebyscore.bind(client))
 // utils
 const keys = util.promisify(client.keys.bind(client))
 
+// pubsub
+function pubsub () {
+  const pubsubClient = client.duplicate()
+
+  pubsubClient.on('error', function (err) {
+    logger.error('Redis error on pubsub', err)
+  })
+
+  return {
+    on: pubsubClient.on.bind(pubsubClient),
+    psubscribe: util.promisify(pubsubClient.psubscribe.bind(pubsubClient)),
+    publish: util.promisify(pubsubClient.publish.bind(pubsubClient)),
+    quit: util.promisify(pubsubClient.quit.bind(pubsubClient))
+  }
+}
+
 module.exports = {
   get,
   keys,
+  pubsub,
   sadd,
   set,
   smembers,
