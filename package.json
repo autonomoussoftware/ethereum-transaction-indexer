@@ -25,6 +25,7 @@
     "bn.js": "4.11.8",
     "config": "1.30.0",
     "debug": "3.1.0",
+    "newrelic": "3.3.0",
     "p-memoize": "1.0.0",
     "promise-all-props": "1.0.1",
     "promise-prototype-finally": "1.0.0",

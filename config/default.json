@@ -1,4 +1,5 @@
 {
+  "newRelicApiKey": "NEW_RELIC_API_KEY",
   "jsonRpcApiUrl": "http://parity.bloqrock.net:8545",
   "websocketApiUrl": "ws://parity.bloqrock.net:8546",
   "pauseOnError": 2000,

@@ -15,3 +15,7 @@ log/*
 
 # Dependencies
 node_modules
+
+# New Relic
+newrelic_agent.log
+
