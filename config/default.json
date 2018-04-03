@@ -1,7 +1,7 @@
 {
   "newrelic": {
-    "apikey": "NEW_RELIC_API_KEY",
-    "level": "info"
+    "apikey": "",
+    "level": ""
   },
   "jsonRpcApiUrl": "http://parity.bloqrock.net:8545",
   "websocketApiUrl": "ws://parity.bloqrock.net:8546",
