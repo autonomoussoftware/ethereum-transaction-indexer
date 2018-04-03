@@ -1,6 +1,10 @@
 'use strict'
 
-require('newrelic')
+const config = require('config')
+
+if (config.newrelic.apikey) {
+  require('newrelic')
+}
 
 const indexer = require('./src/indexer')
 const api = require('./src/api')
