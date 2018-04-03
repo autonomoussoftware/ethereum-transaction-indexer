@@ -1,6 +1,8 @@
 'use strict'
 
+const { websocketTimeout } = require('config')
 const EventEmitter = require('events')
+const timeBombs = require('time-bombs')
 const WebSocketServer = require('websocket').server
 
 const db = require('../db')
@@ -83,14 +85,31 @@ function parseMessage (message) {
   return payload
 }
 
+const messageHandlers = {
+  subscribe (connection, data) {
+    data.forEach(function (address) {
+      attachEmitter(connection, address)
+    })
+  },
+  ping (connection) {
+    connection.sendUTF(JSON.stringify({ event: 'pong' }))
+  }
+}
+
 function attach (httpServer) {
   const server = new WebSocketServer({
-    httpServer,
-    autoAcceptConnections: true
+    httpServer
   })
 
-  server.on('connect', function (connection) {
+  server.on('request', function (request) {
+    const connection = request.accept(null, request.origin)
+
     logger.verbose('New websocket connection')
+
+    const disconnector = timeBombs.create(websocketTimeout, function () {
+      logger.verbose('Connection terminated')
+      connection.close()
+    })
 
     connection.on('message', function (message) {
       logger.debug('Message received')
@@ -99,22 +118,24 @@ function attach (httpServer) {
         const payload = parseMessage(message)
         logger.debug('Websocker message', payload)
 
-        switch (payload.event) {
-          case 'subscribe':
-            payload.data.forEach(function (address) {
-              attachEmitter(connection, address)
-            })
-            break
-          default:
-            logger.warn('Unsupported message received', payload.event)
+        const messageHandler = messageHandlers[payload.event]
+
+        if (!messageHandler) {
+          logger.warn('Unsupported message received', payload.event)
         }
+
+        disconnector.reset()
+
+        messageHandler(connection, payload.data)
       } catch (err) {
         logger.warn('Could not parse websocket message', err.message)
       }
     })
 
     connection.on('close', function (reason, description) {
-      logger.warn('Connection closed', description)
+      logger.verbose('Connection closed', description)
+
+      disconnector.deactivate()
 
       detachEmitters(connection)
     })

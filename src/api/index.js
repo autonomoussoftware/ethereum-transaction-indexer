@@ -7,7 +7,7 @@ const restify = require('restify')
 const logger = require('../logger')
 
 const routes = require('./routes')
-const { attach, detach } = require('./websockets')
+const events = require('./events')
 
 const server = restify.createServer()
 
@@ -24,7 +24,7 @@ function start () {
   beforeExit.do(function (signal) {
     logger.error('Shutting down API on signal', signal)
 
-    return detach()
+    return events.detach()
   })
 
   routes.applyRoutes(server)
@@ -33,7 +33,7 @@ function start () {
     logger.info(`API started on port ${port}`)
   })
 
-  attach(server)
+  events.attach(server)
 }
 
 module.exports = { start }

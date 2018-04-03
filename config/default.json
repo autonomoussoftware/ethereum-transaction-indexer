@@ -1,7 +1,7 @@
 {
   "enode": {
-    "jsonRpcApiUrl": "http://parity.bloqrock.net:8545",
-    "websocketApiUrl": "ws://parity.bloqrock.net:8546"
+  "jsonRpcApiUrl": "http://localhost:8545",
+  "websocketApiUrl": "ws://localhost:8546"
   },
   "logger": {
     "Papertrail": {
@@ -16,5 +16,6 @@
   "pauseOnError": 2000,
   "port": 8080,
   "redisUrl": "redis://localhost:6379",
-  "subscriptionTimeout": 120000
+  "subscriptionTimeout": 120000,
+  "websocketTimeout": 30000
 }
