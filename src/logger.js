@@ -13,7 +13,7 @@ const reqProps = {
 const transports = Object.keys(loggerConf)
   .map(t =>
     loggerConf[t] &&
-    loggerConf[t][reqProps[t]] &&
+    (reqProps[t] ? loggerConf[t][reqProps[t]] : true) &&
     new winston.transports[t](loggerConf[t])
   )
   .filter(t => !!t)
