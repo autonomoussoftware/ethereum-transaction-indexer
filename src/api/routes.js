@@ -1,4 +1,5 @@
 'use strict'
+
 const promiseAllProps = require('promise-all-props')
 const Router = require('restify-router').Router
 
@@ -27,6 +28,7 @@ function getAddressTransactions (req, res, next) {
 }
 
 const ADDRESS_SIZE = 20
+
 function getAddressTokenTransactions (req, res, next) {
   const address = req.params.address.toLowerCase()
   const { from: min = 0, to, tokens } = req.query
