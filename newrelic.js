@@ -16,14 +16,14 @@ exports.config = {
   /**
    * Your New Relic license key.
    */
-  license_key: config.newrelic.apikey,
+  license_key: config.newRelic.licenseKey,
   logging: {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when
      * diagnosing issues with the agent, 'info' and higher will impose the least
      * overhead on production applications.
      */
-    level: config.newrelic.level
+    level: config.newRelic.loggingLevel
   },
   /**
    * When true, all request headers except for those listed in
