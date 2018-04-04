@@ -2,7 +2,7 @@
 
 const config = require('config')
 
-if (config.newRelic.licenseKey) {
+if (config.newRelic && config.newRelic.licenseKey) {
   require('newrelic')
 }
 

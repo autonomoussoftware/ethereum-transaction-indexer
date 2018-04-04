@@ -12,7 +12,8 @@
     "Papertrail": {
       "host": "LOGGER_PAPERTRAIL_HOST",
       "port": "LOGGER_PAPERTRAIL_PORT",
-      "program": "LOGGER_PAPERTRAIL_PROGRAM"
+      "program": "LOGGER_PAPERTRAIL_PROGRAM",
+      "level": "LOGGER_PAPERTRAIL_LEVEL"
     }
   }
 }
