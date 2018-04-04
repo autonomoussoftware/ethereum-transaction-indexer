@@ -8,7 +8,8 @@
   "repository": "autonomoussoftware/ethereum-blockchain-indexer",
   "scripts": {
     "api": "./bin/api",
-    "check": "npm-check -p -i husky -i eslint-config-plugin:*",
+    "check": "dependency-check . && dependency-check . --unused --no-dev",
+    "check:outdated": "npm-check",
     "dev": "nodemon server.js",
     "indexer": "./bin/indexer",
     "lint": "eslint --cache .",
@@ -34,6 +35,7 @@
     "winston-sentry-transport": "1.0.0"
   },
   "devDependencies": {
+    "dependency-check": "3.1.0",
     "eslint": "4.19.0",
     "eslint-config-bloq": "1.2.2",
     "eslint-config-standard": "11.0.0",
