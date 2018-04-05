@@ -1,6 +1,6 @@
 'use strict'
 
-const { pauseOnError, websocketApiUrl } = require('config')
+const { pauseOnError, enode: { websocketApiUrl } } = require('config')
 const beforeExit = require('before-exit')
 const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')

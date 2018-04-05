@@ -1,6 +1,6 @@
 'use strict'
 
-const { apiPort } = require('config')
+const { port } = require('config')
 const beforeExit = require('before-exit')
 const restify = require('restify')
 
@@ -26,8 +26,8 @@ function start () {
 
   routes.applyRoutes(server)
 
-  server.listen(apiPort, function () {
-    logger.info(`API started on port ${apiPort}`)
+  server.listen(port, function () {
+    logger.info(`API started on port ${port}`)
   })
 }
 

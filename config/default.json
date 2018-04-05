@@ -1,15 +1,19 @@
 {
-  "jsonRpcApiUrl": "http://parity.bloqrock.net:8545",
-  "websocketApiUrl": "ws://parity.bloqrock.net:8546",
-  "pauseOnError": 2000,
-  "apiPort": 8080,
-  "redisUrl": "redis://localhost:6379",
+  "enode": {
+    "jsonRpcApiUrl": "http://localhost:8545",
+    "websocketApiUrl": "ws://localhost:8546"
+  },
   "logger": {
-    "Console": {
+    "Papertrail": {
       "colorize": true,
-      "level": "info",
-      "prettyPrint": true,
-      "stringify": true
+      "flushOnClose": true,
+      "handleExceptions": true,
+      "inlineMeta": true,
+      "level": "info"
     }
-  }
+  },
+  "newRelic": {},
+  "pauseOnError": 2000,
+  "port": 8080,
+  "redisUrl": "redis://localhost:6379"
 }

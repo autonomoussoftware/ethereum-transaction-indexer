@@ -12,7 +12,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['metronome-eth-block-indexer'],
+  app_name: [config.newRelic.appName],
   /**
    * Your New Relic license key.
    */
