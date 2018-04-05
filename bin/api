@@ -1,4 +1,13 @@
 #! /usr/bin/env node
 
+'use strict'
+
+const config = require('config')
+
+if (config.newRelic.licenseKey) {
+  require('newrelic')
+}
+
 const api = require('../src/api')
+
 api.start()
