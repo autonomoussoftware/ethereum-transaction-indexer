@@ -11,14 +11,18 @@ const logger = require('../logger')
 
 const router = new Router()
 
+const getBestBlock = () => db.get('best-block').then(JSON.parse)
+
+const getBestBlockNumber = () => getBestBlock().then(b => b.number)
+
 function getRoot (req, res) {
   res.send({ name: pkg.name, version: pkg.version })
 }
 
-function getAddressTransactions (req, res, next) {
+function getAddrsTransactions (req, res, next) {
   const address = req.params.address.toLowerCase()
   const { from: min = 0, to } = req.query
-  return Promise.resolve(to || db.get('best-block'))
+  return Promise.resolve(to || getBestBlockNumber())
     .then(max => db.zrangebyscore(`eth:${address}`, min, max)
       .then(function (transactions) {
         logger.info('<-- eth', address, min, max, transactions.length)
@@ -29,12 +33,12 @@ function getAddressTransactions (req, res, next) {
 
 const ADDRESS_SIZE = 20
 
-function getAddressTokenTransactions (req, res, next) {
+function getAddrsTokenTransactions (req, res, next) {
   const address = req.params.address.toLowerCase()
   const { from: min = 0, to, tokens } = req.query
 
   return promiseAllProps({
-    max: to || db.get('best-block'),
+    max: to || getBestBlockNumber(),
     sets: tokens
       ? tokens.split(',').map(t => `tok:${address}:${t}`)
       : db.keys(`tok:${address}:*`)
@@ -53,8 +57,18 @@ function getAddressTokenTransactions (req, res, next) {
     )
 }
 
-function getBestBlockNumber (req, res, next) {
-  db.get('best-block')
+function getBlocksBest (req, res, next) {
+  getBestBlock()
+    .then(function (bestBlock) {
+      logger.info('<--', bestBlock)
+      res.json(bestBlock)
+      next()
+    })
+}
+
+// DEPRECATED
+function getBlocksLatestNumber (req, res, next) {
+  getBestBlockNumber()
     .then(function (number) {
       logger.info('<--', number)
       res.json({ number })
@@ -63,8 +77,9 @@ function getBestBlockNumber (req, res, next) {
 }
 
 router.get('/', getRoot)
-router.get('/blocks/latest/number', getBestBlockNumber)
-router.get('/addresses/:address/transactions', getAddressTransactions)
-router.get('/addresses/:address/tokentransactions', getAddressTokenTransactions)
+router.get('/blocks/best', getBlocksBest)
+router.get('/blocks/latest/number', getBlocksLatestNumber)
+router.get('/addresses/:address/transactions', getAddrsTransactions)
+router.get('/addresses/:address/tokentransactions', getAddrsTokenTransactions)
 
 module.exports = router
