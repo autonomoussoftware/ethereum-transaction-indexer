@@ -26,7 +26,7 @@ deploy:
     region: "sa-east-1"
     local_dir: dpl_cd_upload
     skip_cleanup: true
-    on: &2
+    on:
       branch: develop
       repo: bloqpriv/ethereum-blockchain-indexer
   - provider: codedeploy
@@ -38,7 +38,8 @@ deploy:
     bundle_type: zip
     application: ethereum-blockchain-indexer-parser-dev
     deployment_group: Metronome
-    on: *2
+    on:
+      branch: develop
 
 script:
   - zip -r indexer-latest *
