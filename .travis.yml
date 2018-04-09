@@ -27,6 +27,7 @@ deploy:
     local_dir: dpl_cd_upload
     skip_cleanup: true
     on: &2
+      branch: develop
       repo: bloqpriv/ethereum-blockchain-indexer
   - provider: codedeploy
     access_key_id: $AWS_ACCESS_KEY_ID
