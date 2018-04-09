@@ -40,6 +40,7 @@ deploy:
     deployment_group: Metronome
     on:
       branch: develop
+      repo: bloqpriv/ethereum-blockchain-indexer
 
 script:
   - zip -r indexer-latest *
