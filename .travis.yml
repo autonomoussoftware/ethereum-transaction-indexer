@@ -19,3 +19,27 @@ deploy:
     bucket_name: "elasticbeanstalk-sa-east-1-869739316835"
     on:
       branch: develop
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket_name: "elasticbeanstalk-sa-east-1-869739316835"
+    region: "sa-east-1"
+    local_dir: dpl_cd_upload
+    skip_cleanup: true
+    on: &2
+      repo: bloqpriv/ethereum-blockchain-indexer
+  - provider: codedeploy
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket_name: "elasticbeanstalk-sa-east-1-869739316835"
+    region: "sa-east-1"
+    key: indexer-latest.zip
+    bundle_type: zip
+    application: ethereum-blockchain-indexer-parser-dev
+    deployment_group: Metronome
+    on: *2
+
+script:
+  - zip -r indexer-latest *
+  - mkdir -p dpl_cd_upload
+  - mv indexer-latest.zip dpl_cd_upload/indexer-latest.zip
