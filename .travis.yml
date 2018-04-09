@@ -22,7 +22,7 @@ deploy:
   - provider: s3
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
-    bucket_name: "elasticbeanstalk-sa-east-1-869739316835"
+    bucket_name: "ethereum-blockcain-indexer"
     region: "sa-east-1"
     local_dir: dpl_cd_upload
     skip_cleanup: true
@@ -32,7 +32,7 @@ deploy:
   - provider: codedeploy
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
-    bucket_name: "elasticbeanstalk-sa-east-1-869739316835"
+    bucket_name: "ethereum-blockcain-indexer"
     region: "sa-east-1"
     key: indexer-latest.zip
     bundle_type: zip
