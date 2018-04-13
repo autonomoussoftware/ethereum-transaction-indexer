@@ -1,15 +1,15 @@
 'use strict'
 
 const {
+  enode: { websocketApiUrl },
   pauseOnError,
-  subscriptionTimeout,
-  enode: { websocketApiUrl } 
+  subscriptionTimeout
 } = require('config')
 const beforeExit = require('before-exit')
 const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')
+const util = require('util')
 
-const asyncSetTimeout = require('../../lib/async-set-timeout')
 const callsPerSec = require('../../lib/calls-per-sec')
 const debounce = require('../../lib/promise-lead-debounce')
 const inBN = require('../../lib/in-BN')
@@ -27,6 +27,8 @@ const {
 const calculateNextBlock = require('./next')
 const parseBlock = require('./parser')
 const web3 = require('./web3')
+
+const asyncSetTimeout = util.promisify(setTimeout)
 
 // index a single block and store indexed information
 const indexBlock = ({ number, hash }) =>
@@ -131,11 +133,11 @@ function indexIncomingBlocks () {
       web3.eth.getBlock(header.hash)
         .then(indexBlocks)
         .catch(function (err) {
-          logger.warn('Could not index new block', err)
+          logger.warn('Could not index new block', err.message)
         })
     }),
     onError (err) {
-      logger.warn('Subscription failure', err)
+      logger.warn('Subscription failure', err.message)
     },
     timeout: subscriptionTimeout
   })

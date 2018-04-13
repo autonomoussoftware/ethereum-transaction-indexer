@@ -18,7 +18,7 @@ const storeEthTransactions = ({ number, data: { addresses, txid } }) =>
     return db.zadd(`eth:${address}`, number, txid)
       .then(function () {
         logger.verbose('Publishing tx message', address, txid)
-        return pub.publish(address, `${txid}:tx:confirmed`)
+        return pub.publish(`tx:${address}`, `eth:${txid}:confirmed`)
       })
   }))
 
@@ -30,7 +30,7 @@ const storeTokenTransactions = ({ number, data: { tokens, txid } }) =>
       return db.zadd(`tok:${address}:${token}`, number, txid)
         .then(function () {
           logger.verbose('Publishing tok message', address, txid)
-          return pub.publish(address, `${txid}:tok:confirmed`)
+          return pub.publish(`tx:${address}`, `tok:${txid}:confirmed:${token}`)
         })
     }))
   ))
@@ -38,11 +38,11 @@ const storeTokenTransactions = ({ number, data: { tokens, txid } }) =>
 // remove ETH transaction data
 const removeEthTransactions = ({ data: { addresses, txid } }) =>
   Promise.all(addresses.map(function (address) {
-    logger.info('Transaction indexed', address, txid)
+    logger.info('Transaction removed', address, txid)
     return db.zrem(`eth:${address}`, txid)
       .then(function () {
         logger.verbose('Publishing tx removed message', address, txid)
-        return pub.publish(address, `${txid}:tx:removed`)
+        return pub.publish(`tx:${address}`, `eht:${txid}:removed`)
       })
   }))
 
@@ -50,11 +50,11 @@ const removeEthTransactions = ({ data: { addresses, txid } }) =>
 const removeTokenTransactions = ({ data: { tokens, txid } }) =>
   Promise.all(tokens.map(({ addresses, token }) =>
     Promise.all(addresses.map(function (address) {
-      logger.info('Token transaction indexed', address, token, txid)
+      logger.info('Token transaction removed', address, token, txid)
       return db.zrem(`tok:${address}:${token}`, txid)
         .then(function () {
           logger.verbose('Publishing tok removed message', address, txid)
-          return pub.publish(address, `${txid}:tok:removed`)
+          return pub.publish(`tx:${address}`, `tok:${txid}:removed:${token}`)
         })
     }))
   ))

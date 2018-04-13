@@ -1,8 +1,7 @@
 'use strict'
 
+const { toLower } = require('lodash')
 const promiseAllProps = require('promise-all-props')
-
-const toLowerCase = require('../../lib/to-lowercase')
 
 const logger = require('../logger')
 
@@ -12,7 +11,7 @@ const DEPLOY_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 // parse a single transaction
 const parseEthTransaction = ({ hash, from, to }) => ({
-  addresses: [from, to || DEPLOY_CONTRACT_ADDRESS].map(toLowerCase),
+  addresses: [from, to || DEPLOY_CONTRACT_ADDRESS].map(toLower),
   txid: hash
 })
 
@@ -33,8 +32,8 @@ function parseTokenTransacion ({ logs, transactionHash }) {
   return {
     // eslint-disable-next-line no-unused-vars
     tokens: tokenLogs.map(({ address, topics: [_, from, to] }) => ({
-      addresses: [from, to].map(topicToAddress).map(toLowerCase),
-      token: toLowerCase(address)
+      addresses: [from, to].map(topicToAddress).map(toLower),
+      token: toLower(address)
     })),
     txid: transactionHash
   }

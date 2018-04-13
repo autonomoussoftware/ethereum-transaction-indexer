@@ -10,33 +10,36 @@
     "api": "./bin/api",
     "check": "dependency-check . && dependency-check . --unused --no-dev",
     "check:outdated": "npm-check -p -i husky -i eslint-config-plugin:*",
-    "dev": "nodemon server.js",
+    "coverage": "nyc --lines 95 --functions 95 --branches 95 --reporter=lcov --reporter=text npm test",
+    "dev": "nodemon -w .",
     "indexer": "./bin/indexer",
     "lint": "eslint --cache .",
     "precommit": "npm run lint",
-    "prepush": "npm run check",
-    "test": "echo OK"
+    "prepush": "npm run check && npm run test",
+    "test": "mocha"
   },
   "dependencies": {
     "before-exit": "1.0.0",
     "bn.js": "4.11.8",
     "config": "1.30.0",
     "debug": "3.1.0",
+    "lodash": "4.17.5",
     "newrelic": "3.3.0",
     "p-memoize": "1.0.0",
     "promise-all-props": "1.0.1",
     "promise-prototype-finally": "1.0.0",
     "redis": "2.8.0",
     "restify": "7.0.0",
+    "restify-errors": "6.0.0",
     "restify-router": "0.5.0",
-    "time-bombs": "1.0.0",
+    "socket.io": "2.1.0",
     "web3": "1.0.0-beta.30",
-    "websocket": "1.0.25",
     "winston": "2.4.1",
     "winston-papertrail": "1.0.5",
     "winston-sentry-transport": "1.0.0"
   },
   "devDependencies": {
+    "chai": "4.1.2",
     "dependency-check": "3.1.0",
     "eslint": "4.19.0",
     "eslint-config-bloq": "1.2.2",
@@ -49,8 +52,10 @@
     "eslint-plugin-promise": "3.7.0",
     "eslint-plugin-standard": "3.0.1",
     "husky": "0.14.3",
+    "mocha": "5.1.0",
     "nodemon": "1.17.2",
-    "npm-check": "5.5.2"
+    "npm-check": "5.5.2",
+    "nyc": "11.6.0"
   },
   "engines": {
     "node": ">= 8",

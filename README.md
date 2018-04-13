@@ -1,6 +1,6 @@
 # Ethereum Blockchain Indexer
 
-Simple indexer service for Ethereum blockchains. This service will index an Ethereum blockchain and provide a REST API to query all transactions related to a given address.
+Simple indexer service for Ethereum blockchains. This service will index an Ethereum blockchain and provide a REST API to query all transactions related to a given address and a [Socket.IO](https://socket.io/) subscription mechanism to be notified when those are indexed.
 
 ## Requirements
 
@@ -50,12 +50,51 @@ Will return a JSON object containing all tokens related to the address, each one
 }
 ```
 
-### `GET /blocks/latest/number`
+### `GET /blocks/best`
 
-Will return an object containing the `number` of the last block indexed.
+Will return an object containing information on the best indexed block.
 
 ```json
 {
-  "number": "543210"
+  "number": 768009,
+  "hash": "0x477510530312753b1fca21c337e53e7405be439f37386d319c3431b3ac96875c",
+  "totalDifficulty": "813977306712"
 }
 ```
+
+## Events interface
+
+The Socket.IO events interface is available at the following route: `/v1`.
+
+### `subscribe`
+
+Will allow the subscriber to start receiving notifications of new transactions indexed related to the given addresses.
+
+Subscription message:
+
+```json
+{
+  "event": "subscribe",
+  "data": ["0x7ba5156795322902643972684192c9a7a5c01721"]
+}
+```
+
+Subscription responses:
+
+```json
+{
+  "event": "tx",
+  "data": {
+    "type": "eth",
+    "txid": "",
+    "status": "confirmed"
+  }
+}
+```
+
+The data object has the following properties:
+
+- `type` can be `eth` for ETH transactions or `tok` for ERC20 token transactions.
+- `txid` is the indexed transaction id.
+- `status` can be `confirmed` or, in the case of a blockchain reorg, it could be `removed`.
+- `meta` is any other information i.e. for ERC20 tokens, it will contain the address of the token contract.

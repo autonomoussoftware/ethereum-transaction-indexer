@@ -13,9 +13,13 @@ config/local.json
 log/*
 !log/.gitkeep
 
-# Dependencies
+# NPM
 node_modules
+npm-debug.log
 
 # New Relic
 newrelic_agent.log
 
+# Coverage
+.nyc_output
+coverage
