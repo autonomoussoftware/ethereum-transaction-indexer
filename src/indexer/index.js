@@ -130,7 +130,7 @@ function indexIncomingBlocks () {
     onData: debounce(function (header) {
       logger.verbose('New block received', header.number, header.hash)
 
-      web3.eth.getBlock(header.hash)
+      return web3.eth.getBlock(header.hash)
         .then(indexBlocks)
         .catch(function (err) {
           logger.warn('Could not index new block', err.message)
