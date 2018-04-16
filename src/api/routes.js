@@ -40,7 +40,7 @@ function getAddressTransactions (req, res) {
 
   return db.getAddressTransactions({ address, from, to })
     .then(function (transactions) {
-      logger.info('<-- eth', address, transactions.length)
+      logger.info(`<-- ${address} txs: ${transactions.length}`)
       res.json(transactions)
     })
 }
@@ -63,8 +63,11 @@ function getAddressTokenTransactions (req, res) {
 
   return db.getAddressTokenTransactions({ address, from, to, tokens })
     .then(function (transactions) {
-      const tokensSeen = Object.keys(transactions)
-      logger.info('<-- tok', address, tokensSeen.length)
+      const tokensSeen = Object.keys(transactions).length
+      const transactionsSeen = Object.keys(transactions).reduce((sum, token) =>
+        transactions[token].length, 0
+      )
+      logger.info(`<-- ${address} toks: ${tokensSeen} txs: ${transactionsSeen}`)
       res.json(transactions)
     })
 }
