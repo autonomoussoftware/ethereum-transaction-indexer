@@ -1,11 +1,10 @@
 'use strict'
 
 const { events: { maxAddresses } } = require('config')
-const { isArray, negate, noop, some } = require('lodash')
+const { isAddress, isHexStrict } = require('web3-utils')
+const { isArray, negate, noop, overEvery, some } = require('lodash')
 const { toLower } = require('lodash')
 const SocketIoServer = require('socket.io')
-
-const isEthAddress = require('../../lib/is-eth-address')
 
 const logger = require('../logger')
 
@@ -28,7 +27,7 @@ function attach (httpServer) {
         ack('too many addresses')
         return
       }
-      if (some(addresses, negate(isEthAddress))) {
+      if (some(addresses, negate(overEvery([isHexStrict, isAddress])))) {
         logger.warn('Subscription rejected: invalid addresses')
         ack('invalid addresses')
         return

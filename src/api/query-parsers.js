@@ -1,13 +1,11 @@
 'use strict'
 
 const { identity } = require('lodash/fp')
-const { isArray, mergeWith, negate, some } = require('lodash')
-
-const isEthAddress = require('../../lib/is-eth-address')
-const isSafeCardinal = require('../../lib/is-safe-cardinal')
+const { isArray, mergeWith, negate, overEvery, some } = require('lodash')
+const { isAddress, isHexStrict } = require('web3-utils')
 
 const evaluateAddresses = (prop, list) => ({
-  errors: some(list, negate(isEthAddress))
+  errors: some(list, negate(overEvery([isHexStrict, isAddress])))
     ? [prop]
     : [],
   query: {
@@ -18,14 +16,17 @@ const evaluateAddresses = (prop, list) => ({
 const evaluateAddressesList = (prop, str) =>
   str && evaluateAddresses(prop, str.split(',').filter(identity))
 
-const evaluateCardinal = (prop, str) => str && {
-  errors: isSafeCardinal(str)
+const evaluateCardinalNum = (prop, num) => ({
+  errors: Number.isSafeInteger(num) && num >= 0
     ? []
     : [prop],
   query: {
-    [prop]: Number.parseInt(str, 10)
+    [prop]: num
   }
-}
+})
+
+const evaluateCardinal = (prop, str) =>
+  str && evaluateCardinalNum(prop, Number.parseInt(str, 10))
 
 const parsePropWith = evalFn => prop => query => evalFn(prop, query[prop])
 
