@@ -1,5 +1,6 @@
 'use strict'
 
+const { noop } = require('lodash')
 const { port } = require('config')
 const beforeExit = require('before-exit')
 const restify = require('restify')
@@ -20,11 +21,13 @@ function logRequest (req, res, next) {
 
 server.use(logRequest)
 
+const stop = () => events.detach().catch(noop)
+
 function start () {
   beforeExit.do(function (signal) {
     logger.error('Shutting down API on signal', signal)
 
-    return events.detach()
+    return stop()
   })
 
   routes.applyRoutes(server)
@@ -47,7 +50,10 @@ function start () {
         logger.error('Could not start events interface', err.message)
 
         // Should not continue if unable to start the events interface
-        process.exit(1)
+        return stop()
+          .then(function () {
+            process.exit(1)
+          })
       })
   })
 }
