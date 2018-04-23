@@ -1,6 +1,6 @@
 'use strict'
 
-const { toLower } = require('lodash')
+const { identity, toLower } = require('lodash')
 const promiseAllProps = require('promise-all-props')
 
 const logger = require('../logger')
@@ -32,7 +32,7 @@ function parseTokenTransacion ({ logs, transactionHash }) {
   return {
     // eslint-disable-next-line no-unused-vars
     tokens: tokenLogs.map(({ address, topics: [_, from, to] }) => ({
-      addresses: [from, to].map(topicToAddress).map(toLower),
+      addresses: [from, to].filter(identity).map(topicToAddress).map(toLower),
       token: toLower(address)
     })),
     txid: transactionHash
