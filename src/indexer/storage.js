@@ -38,11 +38,11 @@ const storeTokenTransactions = ({ number, data: { tokens, txid } }) =>
 // remove ETH transaction data
 const removeEthTransactions = ({ data: { addresses, txid } }) =>
   Promise.all(addresses.map(function (address) {
-    logger.info('Transaction removed', address, txid)
+    logger.info('Transaction unconfirmed', address, txid)
     return db.zrem(`eth:${address}`, txid)
       .then(function () {
-        logger.verbose('Publishing tx removed message', address, txid)
-        return pub.publish(`tx:${address}`, `eht:${txid}:removed`)
+        logger.verbose('Publishing tx unconfirmed message', address, txid)
+        return pub.publish(`tx:${address}`, `eht:${txid}:unconfirmed`)
       })
   }))
 
@@ -50,11 +50,13 @@ const removeEthTransactions = ({ data: { addresses, txid } }) =>
 const removeTokenTransactions = ({ data: { tokens, txid } }) =>
   Promise.all(tokens.map(({ addresses, token }) =>
     Promise.all(addresses.map(function (address) {
-      logger.info('Token transaction removed', address, token, txid)
+      logger.info('Token transaction unconfirmed', address, token, txid)
       return db.zrem(`tok:${address}:${token}`, txid)
         .then(function () {
-          logger.verbose('Publishing tok removed message', address, txid)
-          return pub.publish(`tx:${address}`, `tok:${txid}:removed:${token}`)
+          logger.verbose('Publishing tok unconfirmed message', address, txid)
+          return pub.publish(
+            `tx:${address}`, `tok:${txid}:unconfirmed:${token}`
+          )
         })
     }))
   ))
