@@ -5,6 +5,7 @@ const logger = require('../logger')
 
 const sub = db.pubsub()
 
+// DB events parsers
 const patterns = {
   'tx:*' (channel, message) {
     const [event, address] = channel.split(':')
@@ -27,6 +28,7 @@ const patterns = {
   }
 }
 
+// attach to DB events and emit to subscribers
 function attachToDb (io) {
   sub.on('pmessage', function (pattern, channel, message) {
     logger.verbose('Received new event', pattern, channel)
@@ -42,6 +44,7 @@ function attachToDb (io) {
   )
 }
 
+// detach from DB events
 const detachFromDb = () => sub.quit()
 
 module.exports = { attachToDb, detachFromDb }

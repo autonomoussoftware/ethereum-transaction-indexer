@@ -14,6 +14,7 @@ const server = restify.createServer({ socketio: true })
 
 server.use(restify.plugins.queryParser())
 
+// log any received request
 function logRequest (req, res, next) {
   logger.verbose('-->', req.url)
   return next()
@@ -21,8 +22,10 @@ function logRequest (req, res, next) {
 
 server.use(logRequest)
 
+// stop the web server and detach the events API and DB listeners
 const stop = () => events.detach().catch(noop)
 
+// start the web server and initialize the events API and DB listeners
 function start () {
   beforeExit.do(function (signal) {
     logger.error('Shutting down API on signal', signal)

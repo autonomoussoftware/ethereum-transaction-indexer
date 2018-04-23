@@ -48,6 +48,7 @@ const previousBlock = ({ hash }) =>
 // check if a is less that or equal to b
 const lte = (a, b) => inBN('lte', a, b)
 
+// create a spied storeBestBlock to log calls rate
 const timedStoreBestBlock = callsPerSec(storeBestBlock, function (speed) {
   logger.info('Parsing speed [blocks/sec]', speed)
 })

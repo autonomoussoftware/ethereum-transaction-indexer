@@ -19,10 +19,12 @@ const ETH_ADDRESS_FORMAT = '^0x[0-9a-fA-F]{40}$'
 
 const router = new Router()
 
+// return basic service info
 function getRoot (req, res) {
   res.send({ name: pkg.name, version: pkg.version })
 }
 
+// return all ETH transactions of an address
 function getAddressTransactions (req, res) {
   const address = req.params.address.toLowerCase()
   const { errors, query } = parseQuery([
@@ -45,6 +47,7 @@ function getAddressTransactions (req, res) {
     })
 }
 
+// return all transactions with token logs of an address
 function getAddressTokenTransactions (req, res) {
   const address = req.params.address.toLowerCase()
   const { errors, query } = parseQuery([
@@ -72,12 +75,15 @@ function getAddressTokenTransactions (req, res) {
     })
 }
 
+// return the best parsed block
 const getBlocksBest = (req, res) => db.getBestBlock()
   .then(function (bestBlock) {
     logger.info('<--', bestBlock)
     res.json(bestBlock)
   })
 
+// return the best parsed block number
+// DEPRECATED
 const getBlocksLatestNumber = (req, res) => db.getBestBlockNumber()
   .then(function (number) {
     logger.info('<--', number)

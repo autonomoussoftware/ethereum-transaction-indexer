@@ -10,6 +10,7 @@ const logger = require('../logger')
 
 const { attachToDb, detachFromDb } = require('./listener')
 
+// create a Socket.IO server and attach it to an HTTP server
 function attach (httpServer) {
   const io = new SocketIoServer(httpServer).of('v1')
 
@@ -56,6 +57,7 @@ function attach (httpServer) {
   return attachToDb(io)
 }
 
+// detach everything before shutting down
 const detach = detachFromDb
 
 module.exports = { attach, detach }
