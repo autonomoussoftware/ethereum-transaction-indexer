@@ -76,6 +76,10 @@ const getBestBlock = () =>
 function storeBestBlock ({ number, hash, totalDifficulty }) {
   logger.info('New best block', number, hash, totalDifficulty)
   return db.set('best-block', JSON.stringify({ number, hash, totalDifficulty }))
+    .then(function () {
+      logger.verbose('Publishing new block', number, hash)
+      return pub.publish('block', `${hash}:${number}`)
+    })
 }
 
 // store parsed address to transaction data in the db
