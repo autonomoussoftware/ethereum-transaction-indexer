@@ -33,6 +33,8 @@ function attach (httpServer) {
         return
       }
 
+      logger.verbose('-->> subscribe', addresses)
+
       socket.join(addresses.map(toLower), function (err) {
         if (err) {
           logger.warn('Could not complete subscription', err.message)
