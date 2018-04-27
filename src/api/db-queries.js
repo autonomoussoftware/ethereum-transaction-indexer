@@ -33,7 +33,7 @@ const getAddressTokenTransactions = ({ address, from, to, tokens }) =>
           .then(transactions => ({ [set.split(':')[2]]: transactions }))
       ))
     )
-    .then(results => reduce(results, merge))
+    .then(results => reduce(results, merge, {}))
 
 module.exports = {
   getBestBlock,
