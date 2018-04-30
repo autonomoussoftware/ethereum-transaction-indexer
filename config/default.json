@@ -7,6 +7,12 @@
     "throttleNewBlocks": 1000
   },
   "logger": {
+    "Console": {
+      "colorize": true,
+      "level": "debug",
+      "prettyPrint": true,
+      "stringify": true
+    },
     "Papertrail": {
       "colorize": true,
       "flushOnClose": true,
