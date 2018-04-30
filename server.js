@@ -1,4 +1,4 @@
 'use strict'
 
-require('./bin/indexer')
-require('./bin/api')
+require('./src/indexer')
+require('./src/api')
