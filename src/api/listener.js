@@ -23,7 +23,7 @@ const patterns = {
     return {
       room: 'block',
       event: 'block',
-      data: { hash, number }
+      data: { hash, number: Number.parseInt(number, 10) }
     }
   }
 }
