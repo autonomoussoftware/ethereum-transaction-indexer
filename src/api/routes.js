@@ -76,19 +76,21 @@ function getAddressTokenTransactions (req, res) {
 }
 
 // return the best parsed block
-const getBlocksBest = (req, res) => db.getBestBlock()
-  .then(function (bestBlock) {
-    logger.info('<--', bestBlock)
-    res.json(bestBlock)
-  })
+const getBlocksBest = (req, res) =>
+  db.getBestBlock()
+    .then(function (bestBlock) {
+      logger.info('<--', bestBlock)
+      res.json(bestBlock)
+    })
 
 // return the best parsed block number
 // DEPRECATED
-const getBlocksLatestNumber = (req, res) => db.getBestBlockNumber()
-  .then(function (number) {
-    logger.info('<--', number)
-    res.json({ number })
-  })
+const getBlocksLatestNumber = (req, res) =>
+  db.getBestBlockNumber()
+    .then(function (number) {
+      logger.info('<--', number)
+      res.json({ number })
+    })
 
 router.get(
   '/',
