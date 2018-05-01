@@ -6,7 +6,10 @@ const util = require('util')
 
 const logger = require('./logger')
 
-const client = redis.createClient({ url: redisUrl })
+const client = redis.createClient({
+  url: redisUrl,
+  return_buffers: true
+})
 
 client.on('error', function (err) {
   logger.error('Redis error', err)
@@ -31,7 +34,7 @@ const keys = util.promisify(client.keys.bind(client))
 
 // pubsub
 function pubsub () {
-  const pubsubClient = client.duplicate()
+  const pubsubClient = client.duplicate({ return_buffers: false })
 
   pubsubClient.on('error', function (err) {
     logger.error('Redis error on pubsub', err)
