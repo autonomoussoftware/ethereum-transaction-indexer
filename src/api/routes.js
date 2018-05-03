@@ -42,7 +42,7 @@ function getAddressTransactions (req, res) {
 
   return db.getAddressTransactions({ address, from, to })
     .then(function (transactions) {
-      logger.info(`<-- ${address} txs: ${transactions.length}`)
+      logger.verbose(`<-- ${address} txs: ${transactions.length}`)
       res.json(transactions)
     })
 }
@@ -70,7 +70,7 @@ function getAddressTokenTransactions (req, res) {
       const transactionsSeen = Object.keys(transactions).reduce((sum, token) =>
         transactions[token].length, 0
       )
-      logger.info(`<-- ${address} toks: ${tokensSeen} txs: ${transactionsSeen}`)
+      logger.verbose(`<-- ${address} toks: ${tokensSeen} txs: ${transactionsSeen}`)
       res.json(transactions)
     })
 }
@@ -79,7 +79,7 @@ function getAddressTokenTransactions (req, res) {
 const getBlocksBest = (req, res) =>
   db.getBestBlock()
     .then(function (bestBlock) {
-      logger.info('<--', bestBlock)
+      logger.verbose('<--', bestBlock)
       res.json(bestBlock)
     })
 
@@ -88,7 +88,7 @@ const getBlocksBest = (req, res) =>
 const getBlocksLatestNumber = (req, res) =>
   db.getBestBlockNumber()
     .then(function (number) {
-      logger.info('<--', number)
+      logger.verbose('<--', number)
       res.json({ number })
     })
 

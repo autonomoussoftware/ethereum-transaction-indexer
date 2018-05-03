@@ -35,7 +35,7 @@ function attachToDb (io) {
 
     const { room, event, data } = patterns[pattern](channel, message)
 
-    logger.info('<<--', { room, event, data })
+    logger.verbose('<<--', { room, event, data })
     io.to(room).emit(event, data)
   })
 

@@ -37,7 +37,7 @@ function subscribeToTransactions (socket, addresses, ack) {
       return
     }
 
-    logger.verbose('Subscription to txs processed', addresses)
+    logger.info('Subscription to txs processed', addresses)
 
     ack()
   })
@@ -54,7 +54,7 @@ function subscribeToBlocks (socket, ack) {
       return
     }
 
-    logger.verbose('Subscription to blocks processed')
+    logger.info('Subscription to blocks processed')
 
     ack()
   })

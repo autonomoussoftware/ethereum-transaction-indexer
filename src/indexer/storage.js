@@ -17,7 +17,7 @@ const closePubsub = () => pub.quit()
 // store ETH transaction data
 const storeEthTransactions = ({ number, data: { addresses, txid } }) =>
   Promise.all(addresses.map(function (address) {
-    logger.info('Transaction indexed', address, number, txid)
+    logger.verbose('Transaction indexed', address, number, txid)
     return db.zadd(`eth:${address}`, number, txid)
       .then(function () {
         logger.verbose('Publishing tx message', address, txid)
@@ -29,7 +29,7 @@ const storeEthTransactions = ({ number, data: { addresses, txid } }) =>
 const storeTokenTransactions = ({ number, data: { tokens, txid } }) =>
   Promise.all(tokens.map(({ addresses, token }) =>
     Promise.all(addresses.map(function (address) {
-      logger.info('Token transaction indexed', address, token, number, txid)
+      logger.verbose('Token transaction indexed', address, token, number, txid)
       return db.zadd(`tok:${address}:${token}`, number, txid)
         .then(function () {
           logger.verbose('Publishing tok message', address, txid)
@@ -41,7 +41,7 @@ const storeTokenTransactions = ({ number, data: { tokens, txid } }) =>
 // remove ETH transaction data
 const removeEthTransactions = ({ data: { addresses, txid } }) =>
   Promise.all(addresses.map(function (address) {
-    logger.info('Transaction unconfirmed', address, txid)
+    logger.verbose('Transaction unconfirmed', address, txid)
     return db.zrem(`eth:${address}`, txid)
       .then(function () {
         logger.verbose('Publishing tx unconfirmed message', address, txid)
@@ -53,7 +53,7 @@ const removeEthTransactions = ({ data: { addresses, txid } }) =>
 const removeTokenTransactions = ({ data: { tokens, txid } }) =>
   Promise.all(tokens.map(({ addresses, token }) =>
     Promise.all(addresses.map(function (address) {
-      logger.info('Token transaction unconfirmed', address, token, txid)
+      logger.verbose('Token transaction unconfirmed', address, token, txid)
       return db.zrem(`tok:${address}:${token}`, txid)
         .then(function () {
           logger.verbose('Publishing tok unconfirmed message', address, txid)
@@ -83,7 +83,7 @@ const publishBestBlock = throttle(
 
 // update the record of the best indexed block
 function storeBestBlock ({ number, hash, totalDifficulty }) {
-  logger.info('New best block', number, hash, totalDifficulty)
+  logger.verbose('New best block', number, hash, totalDifficulty)
   return db.set('best-block', JSON.stringify({ number, hash, totalDifficulty }))
     .then(function () {
       logger.verbose('Publishing new block', number, hash)
