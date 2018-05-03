@@ -1,5 +1,8 @@
 'use strict'
 
+const { events: { throttleNewBlocks } } = require('config')
+const { throttle } = require('lodash')
+
 const db = require('../db')
 const logger = require('../logger')
 
@@ -72,13 +75,19 @@ const getBestBlock = () =>
       })
     )
 
+// throttle publishing best block
+const publishBestBlock = throttle(
+  (hash, number) => pub.publish('block', `${hash}:${number}`),
+  throttleNewBlocks
+)
+
 // update the record of the best indexed block
 function storeBestBlock ({ number, hash, totalDifficulty }) {
   logger.info('New best block', number, hash, totalDifficulty)
   return db.set('best-block', JSON.stringify({ number, hash, totalDifficulty }))
     .then(function () {
       logger.verbose('Publishing new block', number, hash)
-      return pub.publish('block', `${hash}:${number}`)
+      return publishBestBlock(hash, number)
     })
 }
 

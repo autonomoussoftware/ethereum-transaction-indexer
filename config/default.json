@@ -3,7 +3,8 @@
     "websocketApiUrl": "ws://localhost:8546"
   },
   "events": {
-    "maxAddresses": 10
+    "maxAddresses": 10,
+    "throttleNewBlocks": 1000
   },
   "logger": {
     "Papertrail": {
