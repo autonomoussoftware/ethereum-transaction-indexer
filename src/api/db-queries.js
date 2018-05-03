@@ -30,7 +30,7 @@ const getAddressTokenTransactions = ({ address, from, to, tokens }) =>
     max: to || getBestBlockNumber(),
     sets: tokens && tokens.length
       ? tokens.map(t => `tok:${address}:${t}`)
-      : db.keys(`tok:${address}:*`)
+      : db.keys(`tok:${address}:*`).then(map(toString))
   })
     .then(({ min, max, sets }) =>
       Promise.all(sets.map(set =>
