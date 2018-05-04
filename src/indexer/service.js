@@ -49,9 +49,12 @@ const previousBlock = ({ hash }) =>
 const lte = (a, b) => inBN('lte', a, b)
 
 // create a spied storeBestBlock to log calls rate
-const timedStoreBestBlock = callsPerSec(storeBestBlock, function (speed) {
-  logger.info('Parsing speed [blocks/sec]', speed)
-})
+const timedStoreBestBlock = callsPerSec(
+  storeBestBlock,
+  function (speed, [{ number } = {}]) {
+    logger.info('Parsed block %s at %s [blocks/sec]', number, speed)
+  }
+)
 
 // index a single block considering reorgs
 function indexBlocks (latest) {
@@ -129,7 +132,7 @@ function indexIncomingBlocks () {
   subscribe({
     url: websocketApiUrl,
     onData: debounce(function (header) {
-      logger.verbose('New block received', header.number, header.hash)
+      logger.info('New block received', header.number, header.hash)
 
       return web3.eth.getBlock(header.hash)
         .then(indexBlocks)
