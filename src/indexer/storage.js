@@ -1,14 +1,21 @@
 'use strict'
 
-const { events: { throttleNewBlocks } } = require('config')
+const { events: { throttleNewBlocks }, maxReorgWindow } = require('config')
+const { map } = require('lodash/fp')
 const { throttle } = require('lodash')
 const db = require('../db')
 const logger = require('../logger')
 
 // eslint-disable-next-line max-len
-const hexToBuffer = hex => Buffer.from(hex.substr(2), 'hex')
 const NULL_TX_ID = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
+// transform a hex string starting with "0x" into a buffer
+const hexToBuffer = hex => Buffer.from(hex.substr(2), 'hex')
+
+// convert a buffer to an hex string, adding the '0x' prefix
+const bufferToHex = buf => `0x${buf.toString('hex')}`
+
+// create a pubsub connection
 const pub = db.pubsub()
 
 // closes the pubsub connection
@@ -16,53 +23,77 @@ const closePubsub = () => pub.quit()
 
 // store ETH transaction data
 const storeEthTransactions = ({ number, data: { addresses, txid } }) =>
-  Promise.all(addresses.map(function (address) {
-    logger.verbose('Transaction indexed', address, number, txid)
-    return db.zadd(`eth:${address}`, number, hexToBuffer(txid))
-      .then(function () {
-        logger.verbose('Publishing tx message', address, txid)
-        return pub.publish(`tx:${address}`, `eth:${txid}:confirmed`)
-      })
+  Promise.all(addresses.map(function (addr) {
+    logger.verbose('Transaction indexed', addr, number, txid)
+    return Promise.all([
+      db.zadd(`eth:${addr}`, number, hexToBuffer(txid))
+        .then(function () {
+          logger.verbose('Publishing tx message', addr, txid)
+          return pub.publish(`tx:${addr}`, `eth:${txid}:confirmed`)
+        }),
+      db.sadd(`blk:${number}:eth`, hexToBuffer(addr))
+        .then(() => db.expire(`blk:${number}:eth`, maxReorgWindow))
+    ])
   }))
 
 // store token transaction data
 const storeTokenTransactions = ({ number, data: { tokens, txid } }) =>
   Promise.all(tokens.map(({ addresses, token }) =>
-    Promise.all(addresses.map(function (address) {
-      logger.verbose('Token transaction indexed', address, token, number, txid)
-      return db.zadd(`tok:${address}:${token}`, number, hexToBuffer(txid))
-        .then(function () {
-          logger.verbose('Publishing tok message', address, txid)
-          return pub.publish(`tx:${address}`, `tok:${txid}:confirmed:${token}`)
-        })
+    Promise.all(addresses.map(function (addr) {
+      logger.verbose('Token transaction indexed', addr, token, number, txid)
+      return Promise.all([
+        db.zadd(`tok:${addr}:${token}`, number, hexToBuffer(txid))
+          .then(function () {
+            logger.verbose('Publishing tok message', addr, txid)
+            return pub.publish(`tx:${addr}`, `tok:${txid}:confirmed:${token}`)
+          }),
+        db.sadd(`blk:${number}:tok`, hexToBuffer(`${addr}:${token}`))
+          .then(() => db.expire(`blk:${number}:tok`, maxReorgWindow))
+      ])
     }))
   ))
 
 // remove ETH transaction data
-const removeEthTransactions = ({ data: { addresses, txid } }) =>
-  Promise.all(addresses.map(function (address) {
-    logger.verbose('Transaction unconfirmed', address, txid)
-    return db.zrem(`eth:${address}`, hexToBuffer(txid))
-      .then(function () {
-        logger.verbose('Publishing tx unconfirmed message', address, txid)
-        return pub.publish(`tx:${address}`, `eht:${txid}:unconfirmed`)
-      })
-  }))
+const removeEthTransactions = ({ number }) =>
+  db.smembers(`blk:${number}:eth`)
+    .then(map(bufferToHex))
+    .then(addresses => Promise.all(
+      addresses.map(addr => db.zrangebyscore(`eth:${addr}`, number, number)
+        .then(map(bufferToHex))
+        .then(txids => Promise.all(txids.map(function (txid) {
+          logger.verbose('Transaction unconfirmed', addr, txid)
+          return db.zrem(`eth:${addr}`, hexToBuffer(txid))
+            .then(function () {
+              logger.verbose('Publishing tx unconfirmed message', addr, txid)
+              return pub.publish(`tx:${addr}`, `eht:${txid}:unconfirmed`)
+            })
+        })))
+      )
+    ))
+    .then(() => db.del(`blk:${number}:eth`))
 
 // remove token transaction data
-const removeTokenTransactions = ({ data: { tokens, txid } }) =>
-  Promise.all(tokens.map(({ addresses, token }) =>
-    Promise.all(addresses.map(function (address) {
-      logger.verbose('Token transaction unconfirmed', address, token, txid)
-      return db.zrem(`tok:${address}:${token}`, hexToBuffer(txid))
-        .then(function () {
-          logger.verbose('Publishing tok unconfirmed message', address, txid)
-          return pub.publish(
-            `tx:${address}`, `tok:${txid}:unconfirmed:${token}`
-          )
-        })
-    }))
-  ))
+const removeTokenTransactions = ({ number }) =>
+  db.smembers(`blk:${number}:tok`)
+    .then(map(bufferToHex))
+    .then(addrTokens => Promise.all(
+      addrTokens.map(function (addrToken) {
+        const [addr, token] = addrToken.split(':')
+        return db.zrangebyscore(`tok:${addr}:${token}`, number, number)
+          .then(map(hexToBuffer))
+          .then(txids => Promise.all(txids.map(function (txid) {
+            logger.verbose('Token transaction unconfirmed', addr, token, txid)
+            return db.zrem(`tok:${addr}:${token}`, hexToBuffer(txid))
+              .then(function () {
+                logger.verbose('Publishing tok unconfirmed message', addr, txid)
+                return pub.publish(
+                  `tx:${addr}`, `tok:${txid}:unconfirmed:${token}`
+                )
+              })
+          })))
+      })
+    ))
+    .then(() => db.del(`blk:${number}:tok`))
 
 // get the best indexed block
 const getBestBlock = () =>
@@ -100,13 +131,11 @@ const storeData = ({ number, data }) =>
   )
 
 // remove parsed address to transaction data from the db
-const removeData = ({ data }) =>
-  Promise.all(data.map(({ eth, tok }) =>
-    Promise.all([
-      removeEthTransactions({ data: eth }),
-      removeTokenTransactions({ data: tok })
-    ]))
-  )
+const removeData = ({ number }) =>
+  Promise.all([
+    removeEthTransactions({ number }),
+    removeTokenTransactions({ number })
+  ])
 
 module.exports = {
   closePubsub,

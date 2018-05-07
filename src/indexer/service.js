@@ -35,11 +35,6 @@ const indexBlock = ({ number, hash }) =>
   parseBlock(hash)
     .then(data => storeData({ number, data }))
 
-// rewind all indexed information of a block
-const rewindBlock = ({ hash }) =>
-  parseBlock(hash)
-    .then(data => removeData({ data }))
-
 // get the previous block of a given one
 const previousBlock = ({ hash }) =>
   web3.eth.getBlock(hash)
@@ -80,7 +75,7 @@ function indexBlocks (latest) {
 
           // need to go back :(
           logger.warn('Reorg spotted')
-          return rewindBlock(best)
+          return removeData(best)
             .then(() => previousBlock(best))
         })
         .then(timedStoreBestBlock)

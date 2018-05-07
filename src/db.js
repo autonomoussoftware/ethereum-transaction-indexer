@@ -30,6 +30,8 @@ const zrem = util.promisify(client.zrem.bind(client))
 const zremrangebyscore = util.promisify(client.zremrangebyscore.bind(client))
 
 // utils
+const del = util.promisify(client.del.bind(client))
+const expire = util.promisify(client.expire.bind(client))
 const keys = util.promisify(client.keys.bind(client))
 
 // pubsub
@@ -49,6 +51,8 @@ function pubsub () {
 }
 
 module.exports = {
+  del,
+  expire,
   get,
   keys,
   pubsub,
