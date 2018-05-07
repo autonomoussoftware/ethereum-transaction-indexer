@@ -65,7 +65,7 @@ const removeEthTransactions = ({ number }) =>
           return db.zrem(`eth:${addr}`, hexToBuffer(txid))
             .then(function () {
               logger.verbose('Publishing tx unconfirmed message', addr, txid)
-              return pub.publish(`tx:${addr}`, `eht:${txid}:unconfirmed`)
+              return pub.publish(`tx:${addr}`, `eth:${txid}:unconfirmed`)
             })
         })))
       )
