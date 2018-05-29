@@ -1,7 +1,7 @@
 {
   "enode": {
     "ipcPath": "~/.local/share/io.parity.ethereum/jsonrpc.ipc",
-    "websocketApiUrl": "ws://localhost:8546"
+    "wsApiUrl": "ws://localhost:8546"
   },
   "events": {
     "maxAddresses": 10,

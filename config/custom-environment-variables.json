@@ -1,7 +1,7 @@
 {
   "enode": {
     "ipcPath": "ENODE_IPC_PATH",
-    "websocketApiUrl": "ENODE_WS_API_URL"
+    "wsApiUrl": "ENODE_WS_API_URL"
   },
   "logger": {
     "Papertrail": {

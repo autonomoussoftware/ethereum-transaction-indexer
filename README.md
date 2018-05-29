@@ -98,3 +98,7 @@ The data object has the following properties:
 - `txid` is the indexed transaction id.
 - `status` can be `confirmed` or, in the case of a blockchain reorg, it could be `removed`.
 - `meta` is any other information i.e. for ERC20 tokens, it will contain the address of the token contract.
+
+## License
+
+MIT

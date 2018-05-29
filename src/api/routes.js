@@ -70,7 +70,9 @@ function getAddressTokenTransactions (req, res) {
       const transactionsSeen = Object.keys(transactions).reduce((sum, token) =>
         transactions[token].length, 0
       )
-      logger.verbose(`<-- ${address} toks: ${tokensSeen} txs: ${transactionsSeen}`)
+      logger.verbose(
+        `<-- ${address} toks: ${tokensSeen} txs: ${transactionsSeen}`
+      )
       res.json(transactions)
     })
 }

@@ -1,7 +1,7 @@
 'use strict'
 
 const {
-  enode: { websocketApiUrl },
+  enode: { wsApiUrl },
   pauseOnError,
   subscriptionTimeout
 } = require('config')
@@ -125,7 +125,7 @@ function indexIncomingBlocks () {
   timedStoreBestBlock.stop()
 
   subscribe({
-    url: websocketApiUrl,
+    url: wsApiUrl,
     onData: debounce(function (header) {
       logger.info('New block received', header.number, header.hash)
 

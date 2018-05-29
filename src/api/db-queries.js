@@ -1,5 +1,6 @@
 'use strict'
 
+// eslint-disable-next-line no-shadow
 const { map, toString } = require('lodash/fp')
 const { merge, reduce } = require('lodash')
 const promiseAllProps = require('promise-all-props')
