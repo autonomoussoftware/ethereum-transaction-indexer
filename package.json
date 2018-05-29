@@ -32,6 +32,7 @@
     "restify-errors": "6.0.0",
     "restify-router": "0.5.0",
     "socket.io": "2.1.0",
+    "time-bombs": "1.0.0",
     "web3": "1.0.0-beta.30",
     "web3-utils": "1.0.0-beta.30",
     "winston": "2.4.1",
