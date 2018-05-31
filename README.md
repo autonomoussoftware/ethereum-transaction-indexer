@@ -8,8 +8,8 @@ Simple indexer service for Ethereum blockchains. This service will index an Ethe
 
 ## Requirements
 
-- Node.JS v8
-- Redis v4
+- [Node.JS v8](https://nodejs.org/)
+- [Redis v4](https://redis.io/)
 - Ethereum node (i.e. Geth or Parity)
 
 ## Configuration
