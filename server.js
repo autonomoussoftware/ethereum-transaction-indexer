@@ -1,5 +1,4 @@
-const indexer = require('./src/indexer')
-const api = require('./src/api')
+'use strict'
 
-api.start()
-indexer.start()
+require('./src/indexer')
+require('./src/api')

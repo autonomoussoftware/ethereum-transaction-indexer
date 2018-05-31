@@ -1,7 +1,31 @@
 {
-  "jsonRpcApiUrl": "http://parity.bloqrock.net:8545",
-  "websocketApiUrl": "ws://parity.bloqrock.net:8546",
+  "enode": {
+    "ipcPath": "~/.local/share/io.parity.ethereum/jsonrpc.ipc",
+    "wsApiUrl": "ws://localhost:8546"
+  },
+  "events": {
+    "maxAddresses": 10,
+    "throttleNewBlocks": 1000
+  },
+  "logger": {
+    "Console": {
+      "colorize": true,
+      "level": "debug",
+      "prettyPrint": true,
+      "stringify": true
+    },
+    "Papertrail": {
+      "colorize": true,
+      "flushOnClose": true,
+      "handleExceptions": true,
+      "inlineMeta": true,
+      "level": "info"
+    }
+  },
+  "maxReorgWindow": 28800,
+  "newRelic": {},
   "pauseOnError": 2000,
-  "apiPort": 8080,
-  "redisUrl": "redis://localhost:6379"
+  "port": 3005,
+  "redisUrl": "redis://localhost:6379",
+  "subscriptionTimeout": 120000
 }
