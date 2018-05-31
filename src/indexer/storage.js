@@ -3,8 +3,10 @@
 const { events: { throttleNewBlocks }, maxReorgWindow } = require('config')
 const { map } = require('lodash/fp')
 const { throttle } = require('lodash')
+
 const db = require('../db')
 const logger = require('../logger')
+const pubsub = require('../pubsub')
 
 // eslint-disable-next-line max-len
 const NULL_TX_ID = '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -16,7 +18,7 @@ const hexToBuffer = hex => Buffer.from(hex.substr(2), 'hex')
 const bufferToHex = buf => `0x${buf.toString('hex')}`
 
 // create a pubsub connection
-const pub = db.pubsub()
+const pub = pubsub()
 
 // closes the pubsub connection
 const closePubsub = () => pub.quit()

@@ -1,9 +1,9 @@
 'use strict'
 
-const db = require('../db')
 const logger = require('../logger')
+const pubsub = require('../pubsub')
 
-const sub = db.pubsub()
+const sub = pubsub()
 
 // DB events parsers
 const patterns = {
