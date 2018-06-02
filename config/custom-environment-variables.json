@@ -12,6 +12,10 @@
       "level": "LOGGER_PAPERTRAIL_LEVEL"
     }
   },
+  "mongo": {
+    "url": "MONGO_URL",
+    "dbName": "MONGO_DB_NAME"
+  },
   "newRelic": {
     "appName": "NEW_RELIC_APP_NAME",
     "licenseKey": "NEW_RELIC_LICENSE_KEY",

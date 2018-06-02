@@ -1,53 +1,29 @@
 'use strict'
 
-const { redis: { url } } = require('config')
-const redis = require('redis')
-const util = require('util')
+const createDbClient = require('./mongo-adapter')
 
-const logger = require('./logger')
+const dbClient = createDbClient()
 
-const client = redis.createClient({
-  url,
-  return_buffers: true
-})
-
-client.on('error', function (err) {
-  logger.error('Redis error', err)
-})
+const redisToMongo = command => (...args) =>
+  dbClient.then(api => api.db[command](...args))
 
 // string keys
-const get = util.promisify(client.get.bind(client))
-const set = util.promisify(client.set.bind(client))
+const get = redisToMongo('get')
+const set = redisToMongo('set')
 
 // sets
-const sadd = util.promisify(client.sadd.bind(client))
-const smembers = util.promisify(client.smembers.bind(client))
+const sadd = redisToMongo('sadd')
+const smembers = redisToMongo('smembers')
 
 // sorted sets
-const zadd = util.promisify(client.zadd.bind(client))
-const zrangebyscore = util.promisify(client.zrangebyscore.bind(client))
-const zrem = util.promisify(client.zrem.bind(client))
-const zremrangebyscore = util.promisify(client.zremrangebyscore.bind(client))
+const zadd = redisToMongo('zadd')
+const zrangebyscore = redisToMongo('zrangebyscore')
+const zrem = redisToMongo('zrem')
 
 // utils
-const del = util.promisify(client.del.bind(client))
-const expire = util.promisify(client.expire.bind(client))
-
-// pubsub
-function pubsub () {
-  const pubsubClient = client.duplicate({ return_buffers: false })
-
-  pubsubClient.on('error', function (err) {
-    logger.error('Redis error on pubsub', err)
-  })
-
-  return {
-    on: pubsubClient.on.bind(pubsubClient),
-    psubscribe: util.promisify(pubsubClient.psubscribe.bind(pubsubClient)),
-    publish: util.promisify(pubsubClient.publish.bind(pubsubClient)),
-    quit: util.promisify(pubsubClient.quit.bind(pubsubClient))
-  }
-}
+const del = redisToMongo('del')
+const expire = redisToMongo('expire')
+const keys = redisToMongo('keys')
 
 module.exports = {
   del,
@@ -59,6 +35,5 @@ module.exports = {
   smembers,
   zadd,
   zrangebyscore,
-  zrem,
-  zremrangebyscore
+  zrem
 }

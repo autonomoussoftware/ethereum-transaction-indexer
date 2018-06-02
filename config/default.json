@@ -24,6 +24,10 @@
     }
   },
   "maxReorgWindow": 28800,
+  "mongo": {
+    "url": "mongodb://localhost:27017",
+    "dbName": "indexer"
+  },
   "newRelic": {},
   "pauseOnError": 2000,
   "port": 3005,

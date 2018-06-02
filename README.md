@@ -37,7 +37,7 @@ Will return a JSON array having all Ethereum transaction IDs related to the give
 ]
 ```
 
-### `GET /addresses/:address/tokentransactions[?tokens=<contracts>from=<number>&to=<number>]`
+### `GET /addresses/:address/tokentransactions[?tokens=<contracts>&from=<number>&to=<number>]`
 
 Will return a JSON object containing all tokens related to the address, each one with an array having all transaction IDs related to the given address and token. Optionally specify `from` and `to` to limit the query to only that block range and `tokens` as a comma separated list of token contract addresses.
 
