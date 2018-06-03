@@ -1,6 +1,6 @@
 'use strict'
 
-const { events: { throttleNewBlocks }, maxReorgWindow } = require('config')
+const { events: { throttleNewBlocks } } = require('config')
 const { throttle } = require('lodash')
 
 const db = require('../db')
@@ -21,13 +21,12 @@ const storeEthTransactions = ({ number, data: { addresses, txid } }) =>
   Promise.all(addresses.map(function (addr) {
     logger.verbose('Transaction indexed', addr, number, txid)
     return Promise.all([
-      db.zadd(`eth:${addr}`, number, txid)
+      db.setAddressTransaction({ type: 'eth', addr, number, txid })
         .then(function () {
           logger.verbose('Publishing tx message', addr, txid)
           return pub.publish(`tx:${addr}`, `eth:${txid}:confirmed`)
         }),
-      db.sadd(`blk:${number}:eth`, addr)
-        .then(() => db.expire(`blk:${number}:eth`, maxReorgWindow))
+      db.setBlockAddress({ number, type: 'eth', addr })
     ])
   }))
 
@@ -37,25 +36,25 @@ const storeTokenTransactions = ({ number, data: { tokens, txid } }) =>
     Promise.all(addresses.map(function (addr) {
       logger.verbose('Token transaction indexed', addr, token, number, txid)
       return Promise.all([
-        db.zadd(`tok:${addr}:${token}`, number, txid)
+        db.setAddressTransaction({ type: 'tok', addr, token, number, txid })
           .then(function () {
             logger.verbose('Publishing tok message', addr, txid)
             return pub.publish(`tx:${addr}`, `tok:${txid}:confirmed:${token}`)
           }),
-        db.sadd(`blk:${number}:tok`, `${addr}:${token}`)
-          .then(() => db.expire(`blk:${number}:tok`, maxReorgWindow))
+        db.setBlockAddress({ number, type: 'tok', addr, token })
       ])
     }))
   ))
 
 // remove ETH transaction data
 const removeEthTransactions = ({ number }) =>
-  db.smembers(`blk:${number}:eth`)
+  db.getBlockAddresses({ number, type: 'eth' })
     .then(addresses => Promise.all(
-      addresses.map(addr => db.zrangebyscore(`eth:${addr}`, number, number)
+      addresses.map(addr => db
+        .getAddressTransactions({ type: 'eth', addr, min: number, max: number })
         .then(txids => Promise.all(txids.map(function (txid) {
           logger.verbose('Transaction unconfirmed', addr, txid)
-          return db.zrem(`eth:${addr}`, txid)
+          return db.deleteAddressTransaction({ type: 'eth', addr, txid })
             .then(function () {
               logger.verbose('Publishing tx unconfirmed message', addr, txid)
               return pub.publish(`tx:${addr}`, `eth:${txid}:unconfirmed`)
@@ -63,18 +62,25 @@ const removeEthTransactions = ({ number }) =>
         })))
       )
     ))
-    .then(() => db.del(`blk:${number}:eth`))
+    .then(() => db.deleteBlockAddresses({ number, type: 'eth' }))
 
 // remove token transaction data
 const removeTokenTransactions = ({ number }) =>
-  db.smembers(`blk:${number}:tok`)
+  db.getBlockAddresses({ number, type: 'tok' })
     .then(addrTokens => Promise.all(
       addrTokens.map(function (addrToken) {
         const [addr, token] = addrToken.split(':')
-        return db.zrangebyscore(`tok:${addr}:${token}`, number, number)
+        return db.getAddressTransactions({
+          type: 'tok',
+          addr,
+          token,
+          min: number,
+          max: number
+        })
           .then(txids => Promise.all(txids.map(function (txid) {
             logger.verbose('Token transaction unconfirmed', addr, token, txid)
-            return db.zrem(`tok:${addr}:${token}`, txid)
+            return db
+              .deleteAddressTransaction({ type: 'tok', addr, token, txid })
               .then(function () {
                 logger.verbose('Publishing tok unconfirmed message', addr, txid)
                 return pub.publish(
@@ -84,19 +90,16 @@ const removeTokenTransactions = ({ number }) =>
           })))
       })
     ))
-    .then(() => db.del(`blk:${number}:tok`))
+    .then(() => db.deleteBlockAddresses({ number, type: 'tok' }))
 
 // get the best indexed block
 const getBestBlock = () =>
-  db.get('best-block')
-    .then(value => value
-      ? JSON.parse(value.toString())
-      : {
-        number: -1,
-        hash: NULL_TX_ID,
-        totalDifficulty: '0'
-      }
-    )
+  db.getBestBlock()
+    .then(value => value || {
+      number: -1,
+      hash: NULL_TX_ID,
+      totalDifficulty: '0'
+    })
 
 // update the record of the best indexed block
 const publishBestBlock = throttle(
@@ -105,7 +108,7 @@ const publishBestBlock = throttle(
 )
 function storeBestBlock ({ number, hash, totalDifficulty }) {
   logger.verbose('New best block', number, hash, totalDifficulty)
-  return db.set('best-block', JSON.stringify({ number, hash, totalDifficulty }))
+  return db.setBestBlock({ number, hash, totalDifficulty })
     .then(function () {
       logger.verbose('Publishing new block', number, hash)
       return publishBestBlock(hash, number)

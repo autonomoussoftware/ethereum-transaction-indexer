@@ -1,39 +1,33 @@
 'use strict'
 
-const createDbClient = require('./mongo-adapter')
+const createClient = require('./mongo-adapter')
 
-const dbClient = createDbClient()
+const client = createClient()
 
-const redisToMongo = command => (...args) =>
-  dbClient.then(api => api.db[command](...args))
+const queueMongoCall = command =>
+  (...args) => client.then(api => api.db[command](...args))
 
-// string keys
-const get = redisToMongo('get')
-const set = redisToMongo('set')
+const getBestBlock = queueMongoCall('findBestBlock')
+const setBestBlock = queueMongoCall('insertBestBlock')
 
-// sets
-const sadd = redisToMongo('sadd')
-const smembers = redisToMongo('smembers')
+const deleteBlockAddresses = queueMongoCall('deleteBlock')
+const setBlockAddress = queueMongoCall('upsertBlock')
+const getBlockAddresses = queueMongoCall('findBlockAddresses')
 
-// sorted sets
-const zadd = redisToMongo('zadd')
-const zrangebyscore = redisToMongo('zrangebyscore')
-const zrem = redisToMongo('zrem')
+const setAddressTransaction = queueMongoCall('upsertAddress')
+const getAddressTransactions = queueMongoCall('findAddressTransactions')
+const deleteAddressTransaction = queueMongoCall('deleteAddressTransaction')
 
-// utils
-const del = redisToMongo('del')
-const expire = redisToMongo('expire')
-const keys = redisToMongo('keys')
+const getAddressTokens = queueMongoCall('findAddressTokens')
 
 module.exports = {
-  del,
-  expire,
-  get,
-  pubsub,
-  sadd,
-  set,
-  smembers,
-  zadd,
-  zrangebyscore,
-  zrem
+  deleteBlockAddresses,
+  getBestBlock,
+  getAddressTokens,
+  setBlockAddress,
+  setBestBlock,
+  getBlockAddresses,
+  setAddressTransaction,
+  getAddressTransactions,
+  deleteAddressTransaction
 }

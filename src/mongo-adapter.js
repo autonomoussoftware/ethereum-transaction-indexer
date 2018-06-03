@@ -4,16 +4,20 @@ const { map } = require('lodash/fp')
 const { maxReorgWindow, mongo: { url, dbName } } = require('config')
 const MongoClient = require('mongodb').MongoClient
 
+// Keep record of blocks only within the reorg window. Blocks are mined in
+// average every 15 seconds.
+const MAX_BLOCKS = maxReorgWindow / 15
+
 const createClientFor = () =>
   MongoClient.connect(url, { useNewUrlParser: true })
 
 function initCollections (client) {
   const db = client.db(dbName)
   return Promise.all([
-    db.createCollection('blocks', {
+    db.createCollection('bestBlock', {
       capped: true,
-      size: 16 * 1024 * 1024,
-      max: maxReorgWindow / 15
+      size: 1024,
+      max: 1
     })
   ])
     .then(() => client)
@@ -23,41 +27,51 @@ function createApi (client) {
   const db = client.db(dbName)
   return {
     db: {
-      set: (key, value) => db.collection('values')
-        .updateOne({ key }, { $set: { value } }, { upsert: true }),
-      get: key => db.collection('values')
-        .findOne({ key })
-        .then(doc => doc ? doc.value : null),
-      del: key => db.collection('values')
-        .removeOne({ key }),
-      sadd: (key, member) => db.collection('sets')
+      insertBestBlock: data => db.collection('bestBlock')
+        .insertOne({ data }),
+      findBestBlock: () => db.collection('bestBlock')
+        .findOne({})
+        .then(best => best && best.data),
+
+      upsertBlock: ({ number, type, addr, token }) => db.collection('blocks')
         .updateOne(
-          { key },
-          { $addToSet: { members: member } },
+          { number },
+          { $addToSet: { [`${type}Addrs`]: { addr, token } } },
           { upsert: true }
+        ).then(() => db.collection('blocks')
+          .deleteMany({ number: { $lte: number - MAX_BLOCKS } })
         ),
-      smembers: key => db.collection('sets')
-        .findOne({ key })
-        .then(doc => doc ? doc.members : []),
-      zadd: (key, score, member) => db.collection(key)
+      findBlockAddresses: ({ number, type }) => db.collection('blocks')
+        .findOne({ number })
+        .then(block => block ? block[`${type}Addrs`] : []),
+      deleteBlock: ({ number, type }) => db.collection('blocks')
         .updateOne(
-          { score },
-          { $set: { member } },
-          { upsert: true }
+          { number },
+          { $unset: { [`${type}Addrs`]: undefined } }
         ),
-      zrangebyscore: (key, min, max) => db.collection(key)
-        .find({ $and: [{ score: { $gte: min } }, { score: { $lte: max } }] })
+
+      upsertAddress: ({ type, addr, token, number, txid }) =>
+        db.collection(addr)
+          .updateOne(
+            { number, type, token },
+            { $set: { txid } },
+            { upsert: true }
+          ),
+      findAddressTransactions: ({ type, addr, min, max, token }) =>
+        db.collection(addr)
+          .find({ number: { $gte: min, $lte: max }, type, token })
+          .toArray()
+          .then(blocks => blocks.map(block => block.txid)),
+      deleteAddressTransaction: ({ type, addr, token, txid }) =>
+        db.collection(addr)
+          .deleteOne({ type, token, txid }),
+
+      findAddressTokens: addr => db.collection(addr)
+        .find({ type: 'tok' })
         .toArray()
-        .then(array => array.map(doc => doc.member)),
-      zrem: (key, member) => db.collection(key)
-        .deleteMany({ member }),
-      keys: pattern => db
-        .listCollections({ name: { $regex: `^${pattern.replace('*', '')}` } })
-        .toArray()
-        .then(map('name')),
-      expire: () => undefined
+        .then(map('token'))
     },
-    close: client.close.bind(client)
+    closeConnection: client.close.bind(client)
   }
 }
 
