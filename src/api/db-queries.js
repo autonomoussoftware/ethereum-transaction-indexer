@@ -27,8 +27,8 @@ const getAddressTokenTransactions = ({ address: addr, from, to, tokens }) =>
     min: from || 0,
     max: to || getBestBlockNumber(),
     sets: tokens && tokens.length
-      ? tokens.map(t => `tok:${address}:${t}`)
-      : [`tok:${address}:${defaultToken.toLowerCase()}`]
+      ? tokens.map(t => `tok:${addr}:${t}`)
+      : [`tok:${addr}:${defaultToken.toLowerCase()}`]
   })
     .then(({ min, max, tokensList }) =>
       Promise.all(tokensList.map(token =>

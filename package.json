@@ -6,15 +6,16 @@
   "main": "server.js",
   "repository": "autonomoussoftware/ethereum-blockchain-indexer",
   "scripts": {
-    "api": "node ./src/api",
-    "check": "dependency-check . && dependency-check . --unused --no-dev",
+    "api": "forever ./src/api.js",
+    "check": "dependency-check . && dependency-check . --unused --no-dev --ignore-module forever",
     "check:outdated": "npm-check -p -i husky -i eslint-config-plugin:*",
     "coverage": "nyc --lines 95 --functions 95 --branches 95 --reporter=lcov --reporter=text npm test",
     "dev": "nodemon -w .",
-    "indexer": "node ./src/indexer",
+    "indexer": "forever ./src/indexer.js",
     "lint": "eslint --cache .",
     "precommit": "npm run lint",
     "prepush": "npm run check && npm run test",
+    "start": "forever server.js",
     "test": "NODE_ENV=test mocha"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "bn.js": "4.11.8",
     "config": "1.30.0",
     "debug": "3.1.0",
+    "forever": "0.15.3",
     "lodash": "4.17.10",
     "mongodb": "3.0.9",
     "newrelic": "4.1.3",

@@ -9,7 +9,7 @@ const hexToBuffer = hex => Buffer.from(hex.substr(2), 'hex')
 const scToBuff = ({ s, m }) => ({ s, m: hexToBuffer(m) })
 
 describe('Parser storage', function () {
-  it('should reorg ETH transactions', function () {
+  it.skip('should reorg ETH transactions', function () {
     const stored = {
       'blk:3:eth': ['0x30', '0x31'].map(hexToBuffer),
       'blk:4:eth': ['0x31', '0x40'].map(hexToBuffer),
