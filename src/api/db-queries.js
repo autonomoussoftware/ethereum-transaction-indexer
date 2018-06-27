@@ -1,5 +1,6 @@
 'use strict'
 
+const { defaultToken } = require('config')
 // eslint-disable-next-line no-shadow
 const { map, toString } = require('lodash/fp')
 const { merge, reduce } = require('lodash')
@@ -31,7 +32,7 @@ const getAddressTokenTransactions = ({ address, from, to, tokens }) =>
     max: to || getBestBlockNumber(),
     sets: tokens && tokens.length
       ? tokens.map(t => `tok:${address}:${t}`)
-      : db.keys(`tok:${address}:*`).then(map(toString))
+      : [`tok:${address}:${defaultToken.toLowerCase()}`]
   })
     .then(({ min, max, sets }) =>
       Promise.all(sets.map(set =>
