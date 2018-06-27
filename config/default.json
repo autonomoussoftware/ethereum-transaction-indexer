@@ -26,6 +26,9 @@
   "newRelic": {},
   "pauseOnError": 2000,
   "port": 3005,
-  "redisUrl": "redis://localhost:6379",
+  "redis": {
+    "scanCount": 100,
+    "url": "redis://localhost:6379"
+  },
   "subscriptionTimeout": 120000
 }

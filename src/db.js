@@ -1,13 +1,14 @@
 'use strict'
 
-const { redisUrl } = require('config')
+const { redis: { url, scanCount: count } } = require('config')
 const redis = require('redis')
 const util = require('util')
+const pDefer = require('p-defer')
 
 const logger = require('./logger')
 
 const client = redis.createClient({
-  url: redisUrl,
+  url,
   return_buffers: true
 })
 
@@ -32,7 +33,47 @@ const zremrangebyscore = util.promisify(client.zremrangebyscore.bind(client))
 // utils
 const del = util.promisify(client.del.bind(client))
 const expire = util.promisify(client.expire.bind(client))
-const keys = util.promisify(client.keys.bind(client))
+
+// KEYS implemented with SCAN
+function keys (pattern) {
+  logger.debug('Scanning for keys pattern', pattern)
+
+  let cursor = '0'
+  const keysFound = []
+
+  const deferred = pDefer()
+
+  function scan () {
+    client.scan(cursor, 'MATCH', pattern, 'COUNT', count, function (err, res) {
+      if (err) {
+        deferred.reject(err)
+        return
+      }
+
+      cursor = res[0].toString()
+      const keysBatch = res[1]
+
+      if (keysBatch.length) {
+        logger.debug('Matching keys found', keysBatch.length)
+
+        keysFound.push(...keysBatch.map(b => b.toString()))
+      }
+
+      if (cursor === '0') {
+        logger.debug('Scan completed')
+
+        deferred.resolve(keysFound)
+        return
+      }
+
+      scan()
+    })
+  }
+
+  scan()
+
+  return deferred.promise
+}
 
 // pubsub
 function pubsub () {
