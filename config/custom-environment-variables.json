@@ -18,5 +18,8 @@
   },
   "pauseOnError": "INDEXER_DELAY_ON_ERROR",
   "port": "PORT",
-  "redisUrl": "REDIS_URL"
+  "redis": {
+    "scanCount": "REDIS_SCAN_COUNT",
+    "url": "REDIS_URL"
+  }
 }
