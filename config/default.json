@@ -1,4 +1,5 @@
 {
+  "defaultToken": "0xa3d58c4e56fedcae3a7c43a725aee9a71f0ece4e",
   "enode": {
     "ipcPath": "~/.local/share/io.parity.ethereum/jsonrpc.ipc",
     "wsApiUrl": "ws://localhost:8546"
@@ -27,7 +28,6 @@
   "pauseOnError": 2000,
   "port": 3005,
   "redis": {
-    "scanCount": 100,
     "url": "redis://localhost:6379"
   },
   "subscriptionTimeout": 120000

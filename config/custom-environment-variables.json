@@ -1,4 +1,5 @@
 {
+  "defaultToken": "DEFAULT_TOKEN",
   "enode": {
     "ipcPath": "ENODE_IPC_PATH",
     "wsApiUrl": "ENODE_WS_API_URL"
@@ -19,7 +20,6 @@
   "pauseOnError": "INDEXER_DELAY_ON_ERROR",
   "port": "PORT",
   "redis": {
-    "scanCount": "REDIS_SCAN_COUNT",
     "url": "REDIS_URL"
   }
 }
