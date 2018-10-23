@@ -2,10 +2,10 @@
 [![Code Style](https://img.shields.io/badge/code%20style-bloq-0063a6.svg)](https://github.com/bloq/eslint-config-bloq)
 [![Known Vulnerabilities](https://snyk.io/test/github/autonomoussoftware/ethereum-blockchain-indexer/badge.svg?targetFile=package.json)](https://snyk.io/test/github/autonomoussoftware/ethereum-blockchain-indexer)
 
-# Ethereum Blockchain Indexer
+# Transaction Indexer
 
-Simple indexer service for Ethereum blockchains.
-This service will index an Ethereum blockchain and provide a REST API to query all transactions related to a given address and a [Socket.IO](https://socket.io/) subscription mechanism to be notified when those are indexed.
+Simple transaction indexing service for Ethereum blockchains.
+This service will index transactions, provide a REST API to query all transactions related to a given address and a [Socket.IO](https://socket.io/) subscription mechanism to be notified when new transactions are indexed.
 
 ## Requirements
 

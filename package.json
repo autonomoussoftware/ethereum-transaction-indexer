@@ -1,6 +1,6 @@
 {
-  "name": "ethereum-blockchain-indexer",
-  "description": "🗂 Simple indexer service for Ethereum blockchains",
+  "name": "transaction-indexer",
+  "description": "🗂 Simple Ethereum transaction indexing service",
   "license": "MIT",
   "author": "Gabriel Montes <gabriel@bloq.com>",
   "main": "server.js",
