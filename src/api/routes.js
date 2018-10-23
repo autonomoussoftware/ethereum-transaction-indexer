@@ -1,27 +1,16 @@
 'use strict'
 
+const { pick } = require('lodash')
 const restifyErrors = require('restify-errors')
 const Router = require('restify-router').Router
-
-const pkg = require('../../package')
 
 const logger = require('../logger')
 
 const { promiseToMiddleware } = require('./route-utils')
-const {
-  parseCardinal,
-  parseQuery
-} = require('./query-parsers')
+const { parseCardinal, parseQuery } = require('./query-parsers')
 const db = require('./db-queries')
 
 const ETH_ADDRESS_FORMAT = '^0x[0-9a-fA-F]{40}$'
-
-const router = new Router()
-
-// return basic service info
-function getRoot (req, res) {
-  res.send({ name: pkg.name, version: pkg.version })
-}
 
 // return all ETH transactions of an address
 function getAddressTransactions (req, res) {
@@ -42,7 +31,7 @@ function getAddressTransactions (req, res) {
   return db.getAddressTransactions({ address, from, to })
     .then(function (transactions) {
       logger.verbose(`<-- ${address} txs: ${transactions.length}`)
-      res.json(transactions)
+      res.json(transactions.reverse())
     })
 }
 
@@ -51,21 +40,18 @@ const getBlocksBest = (req, res) =>
   db.getBestBlock()
     .then(function (bestBlock) {
       logger.verbose('<--', bestBlock)
-      res.json(bestBlock)
+      res.json(pick(bestBlock, ['number', 'hash', 'totalDifficulty']))
     })
 
-router.get(
-  '/',
-  promiseToMiddleware(getRoot)
-)
+const router = new Router()
 
 router.get(
-  '/v1/blocks/best',
+  '/blocks/best',
   promiseToMiddleware(getBlocksBest)
 )
 
 router.get(
-  `/v1/addresses/:address(${ETH_ADDRESS_FORMAT})/transactions`,
+  `/addresses/:address(${ETH_ADDRESS_FORMAT})/transactions`,
   promiseToMiddleware(getAddressTransactions)
 )
 

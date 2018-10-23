@@ -4,17 +4,19 @@
 
 # Ethereum Blockchain Indexer
 
-Simple indexer service for Ethereum blockchains. This service will index an Ethereum blockchain and provide a REST API to query all transactions related to a given address and a [Socket.IO](https://socket.io/) subscription mechanism to be notified when those are indexed.
+Simple indexer service for Ethereum blockchains.
+This service will index an Ethereum blockchain and provide a REST API to query all transactions related to a given address and a [Socket.IO](https://socket.io/) subscription mechanism to be notified when those are indexed.
 
 ## Requirements
 
 - [Node.JS v8](https://nodejs.org/)
 - [Redis v4](https://redis.io/)
-- Ethereum node (i.e. Geth or Parity)
+- Ethereum node (i.e. [Geth](https://geth.ethereum.org/) or [Parity](https://www.parity.io/))
 
 ## Configuration
 
-Set proper environment variables or create an `<environment>.json` or `hostname.json` file in the `config` folder with specific configuration. Follow the [config ](https://github.com/lorenwest/node-config/) module guidelines.
+Set proper environment variables or create an `<environment>.json` or `hostname.json` file in the `config` folder with specific configuration.
+Follow the [config](https://github.com/lorenwest/node-config/) module guidelines.
 
 ## Start
 
@@ -26,16 +28,19 @@ Optionally, for test and development purposes, start both components with `npm s
 
 ### `GET /v1/addresses/:address/transactions[?from=<number>&to=<number>]`
 
-Will return a JSON array having all Ethereum transaction IDs related to the given address. Optionally specify `from` and `to` to limit the query to only that block range.
+Will return a JSON array having all Ethereum transaction IDs related to the given address.
+Optionally specify `from` and `to` to limit the query to only that block range.
 
 ```json
 [
-  "0x423d66ebf5fa6c16bbf59b4bcbd22eebb25c4c1a3ad4f54eb1bf059e1dd512ec",
-  "0x80f188d6e9b4586cc71c99af40f871860c9c7f0965784d9010b7869ea79497dc",
-  "0x3611fc43d861e287c66bcb350c34d4ed6f96328ed9c37650e0c15ef1b4d23511",
-  "0x2ca2f50183e57663bca09e49f01acd33c2cd25478d060c439a646a427a34fef6"
+  "0xed3a75ab0677e1a4b24874c5f9ac1a6c38a1b419ff7616fb3ed764713095bf10",
+  "0xbfbff2e8bbddbb0575120366be9d2b7dd7f231f8375c43cbb5629ae01ed0003f",
+  "0x735df07d3d73a3f95355e0d6bd6c0a8ce1b5922834b7db372b18888ff2660b55",
+  "0xc54fb504aa7cfedadd0a25623dc568a7ed8bdf92920520639df785729f580868"
 ]
 ```
+
+Transactions are returned in reverse-chronological order.
 
 ### `GET /v1/blocks/best`
 
@@ -43,9 +48,9 @@ Will return an object containing information on the best indexed block.
 
 ```json
 {
-  "number": 768009,
-  "hash": "0x477510530312753b1fca21c337e53e7405be439f37386d319c3431b3ac96875c",
-  "totalDifficulty": "813977306712"
+  "number": 1828,
+  "hash": "0xe04c1cded9a4724d8b22a8f7d6558f778392253ae61a2672a2242c60fe8992df",
+  "totalDifficulty": "342830896"
 }
 ```
 
@@ -62,7 +67,7 @@ Subscription message:
 ```json
 {
   "event": "subscribe",
-  "data": ["0x7ba5156795322902643972684192c9a7a5c01721"]
+  "data": ["0xb1d4c88a30a392aee6859e6f62738230db0c2d93"]
 }
 ```
 
@@ -72,7 +77,7 @@ Subscription responses:
 {
   "event": "tx",
   "data": {
-    "txid": "0x80f188d6e9b4586cc71c99af40f871860c9c7f0965784d9010b7869ea79497dc",
+    "txid": "0x64473dec378049472234c854d53f2ce92cd7a94468b62f785b683a9cacdb7f86",
     "status": "confirmed"
   }
 }

@@ -45,21 +45,13 @@ function subscribeToTransactions (socket, addresses, ack) {
 
 // create a Socket.IO server and attach it to an HTTP server
 function attach (httpServer) {
-  const io = new SocketIoServer(httpServer).of('v1')
+  const io = new SocketIoServer(httpServer).of('v2')
 
   io.on('connection', function (socket) {
     logger.verbose('New connection', socket.id)
 
-    socket.on('subscribe', function (data = {}, ack = noop) {
-      const { type } = data
-
-      if (type !== 'txs') {
-        logger.warn('Subscription rejected: invalid subscription type')
-        ack('invalid subscription type')
-        return
-      }
-
-      subscribeToTransactions(socket, data.addresses, ack)
+    socket.on('subscribe', function (addresses = [], ack = noop) {
+      subscribeToTransactions(socket, addresses, ack)
     })
 
     socket.on('disconnect', function (reason) {

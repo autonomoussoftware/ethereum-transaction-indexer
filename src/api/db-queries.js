@@ -11,16 +11,17 @@ const getBestBlock = () => db.getBestBlock()
 const getBestBlockNumber = () => db.getBestBlock().then(b => b.number)
 
 // get all ETH transactions of an address
-const getAddressTransactions = ({ address, from, to }) => promiseAllProps({
-  min: from || 0,
-  max: to || getBestBlockNumber()
-})
-  .then(({ min, max }) =>
-    db.getAddressTransactions({ type: 'eth', addr: address, min, max })
-  )
+const getAddressTransactions = ({ address, from, to }) =>
+  promiseAllProps({
+    min: from || 0,
+    max: to || getBestBlockNumber()
+  })
+    .then(({ min, max }) =>
+      db.getAddressTransactions({ addr: address, min, max })
+    )
 
 module.exports = {
+  getAddressTransactions,
   getBestBlock,
-  getBestBlockNumber,
-  getAddressTransactions
+  getBestBlockNumber
 }

@@ -18,24 +18,24 @@ const storeEthTransactions = ({ number, data: { addresses, txid } }) =>
   Promise.all(addresses.map(function (addr) {
     logger.verbose('Transaction indexed', addr, number, txid)
     return Promise.all([
-      db.setAddressTransaction({ type: 'eth', addr, number, txid })
+      db.setAddressTransaction({ addr, number, txid })
         .then(function () {
           logger.verbose('Publishing tx message', addr, txid)
           return pub.publish(`tx:${addr}`, `${txid}:confirmed`)
         }),
-      db.setBlockAddress({ number, type: 'eth', addr })
+      db.setBlockAddress({ number, addr })
     ])
   }))
 
 // remove ETH transaction data
 const removeEthTransactions = ({ number }) =>
-  db.getBlockAddresses({ number, type: 'eth' })
+  db.getBlockAddresses({ number })
     .then(addresses => Promise.all(
       addresses.map(addr => db
-        .getAddressTransactions({ type: 'eth', addr, min: number, max: number })
+        .getAddressTransactions({ addr, min: number, max: number })
         .then(txids => Promise.all(txids.map(function (txid) {
           logger.verbose('Transaction unconfirmed', addr, txid)
-          return db.deleteAddressTransaction({ type: 'eth', addr, txid })
+          return db.deleteAddressTransaction({ addr, txid })
             .then(function () {
               logger.verbose('Publishing tx unconfirmed message', addr, txid)
               return pub.publish(`tx:${addr}`, `${txid}:unconfirmed`)
@@ -43,7 +43,7 @@ const removeEthTransactions = ({ number }) =>
         })))
       )
     ))
-    .then(() => db.deleteBlockAddresses({ number, type: 'eth' }))
+    .then(() => db.deleteBlockAddresses({ number }))
 
 // get the best indexed block
 const getBestBlock = () =>

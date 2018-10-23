@@ -6,6 +6,7 @@ const util = require('util')
 
 const logger = require('./logger')
 
+// Create and return a Redis Pub-Sub client
 function pubsub () {
   const client = redis.createClient({
     url: redisUrl,
