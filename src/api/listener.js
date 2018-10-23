@@ -9,21 +9,12 @@ const sub = pubsub()
 const patterns = {
   'tx:*' (channel, message) {
     const [event, address] = channel.split(':')
-    const [type, txid, status, meta] = message.split(':')
+    const [txid, status] = message.split(':')
 
     return {
       room: address,
       event,
-      data: { type, txid, status, meta }
-    }
-  },
-  'block' (channel, message) {
-    const [hash, number] = message.split(':')
-
-    return {
-      room: 'block',
-      event: 'block',
-      data: { hash, number: Number.parseInt(number, 10) }
+      data: { txid, status }
     }
   }
 }

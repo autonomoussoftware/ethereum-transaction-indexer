@@ -7,9 +7,8 @@ const pkg = require('../../package')
 
 const logger = require('../logger')
 
-const { deprecated, promiseToMiddleware } = require('./route-utils')
+const { promiseToMiddleware } = require('./route-utils')
 const {
-  parseAddressesList,
   parseCardinal,
   parseQuery
 } = require('./query-parsers')
@@ -47,36 +46,6 @@ function getAddressTransactions (req, res) {
     })
 }
 
-// return all transactions with token logs of an address
-function getAddressTokenTransactions (req, res) {
-  const address = req.params.address.toLowerCase()
-  const { errors, query } = parseQuery([
-    parseCardinal('from'),
-    parseCardinal('to'),
-    parseAddressesList('tokens')
-  ], req.query)
-
-  if (errors.length) {
-    return Promise.reject(new restifyErrors.BadRequestError(
-      `Invalid query options: ${errors.join(', ')}`
-    ))
-  }
-
-  const { from, to, tokens } = query
-
-  return db.getAddressTokenTransactions({ address, from, to, tokens })
-    .then(function (transactions) {
-      const tokensSeen = Object.keys(transactions).length
-      const transactionsSeen = Object.keys(transactions).reduce((sum, token) =>
-        transactions[token].length, 0
-      )
-      logger.verbose(
-        `<-- ${address} toks: ${tokensSeen} txs: ${transactionsSeen}`
-      )
-      res.json(transactions)
-    })
-}
-
 // return the best parsed block
 const getBlocksBest = (req, res) =>
   db.getBestBlock()
@@ -85,37 +54,19 @@ const getBlocksBest = (req, res) =>
       res.json(bestBlock)
     })
 
-// return the best parsed block number
-// DEPRECATED
-const getBlocksLatestNumber = (req, res) =>
-  db.getBestBlockNumber()
-    .then(function (number) {
-      logger.verbose('<--', number)
-      res.json({ number })
-    })
-
 router.get(
   '/',
   promiseToMiddleware(getRoot)
 )
 
 router.get(
-  '/blocks/best',
+  '/v1/blocks/best',
   promiseToMiddleware(getBlocksBest)
-)
-router.get(
-  '/blocks/latest/number',
-  deprecated,
-  promiseToMiddleware(getBlocksLatestNumber)
 )
 
 router.get(
-  `/addresses/:address(${ETH_ADDRESS_FORMAT})/transactions`,
+  `/v1/addresses/:address(${ETH_ADDRESS_FORMAT})/transactions`,
   promiseToMiddleware(getAddressTransactions)
-)
-router.get(
-  `/addresses/:address(${ETH_ADDRESS_FORMAT})/tokentransactions`,
-  promiseToMiddleware(getAddressTokenTransactions)
 )
 
 module.exports = router

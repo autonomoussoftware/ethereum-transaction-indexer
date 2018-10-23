@@ -1,8 +1,6 @@
 {
-  "defaultToken": "DEFAULT_TOKEN",
   "enode": {
-    "ipcPath": "ENODE_IPC_PATH",
-    "wsApiUrl": "ENODE_WS_API_URL"
+    "ipcPath": "ENODE_IPC_PATH"
   },
   "logger": {
     "Papertrail": {

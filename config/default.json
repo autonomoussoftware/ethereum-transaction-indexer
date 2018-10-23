@@ -1,12 +1,9 @@
 {
-  "defaultToken": "0xa3d58c4e56fedcae3a7c43a725aee9a71f0ece4e",
   "enode": {
-    "ipcPath": "~/.local/share/io.parity.ethereum/jsonrpc.ipc",
-    "wsApiUrl": "ws://localhost:8546"
+    "ipcPath": "~/.local/share/io.parity.ethereum/jsonrpc.ipc"
   },
   "events": {
-    "maxAddresses": 10,
-    "throttleNewBlocks": 1000
+    "maxAddresses": 10
   },
   "logger": {
     "Console": {

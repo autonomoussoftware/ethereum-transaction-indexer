@@ -43,23 +43,6 @@ function subscribeToTransactions (socket, addresses, ack) {
   })
 }
 
-// join the blocks room
-function subscribeToBlocks (socket, ack) {
-  logger.verbose('-->> subscribe blocks')
-
-  socket.join('block', function (err) {
-    if (err) {
-      logger.warn('Could not complete subscription', err.message)
-      ack('error on subscription')
-      return
-    }
-
-    logger.info('Subscription to blocks processed')
-
-    ack()
-  })
-}
-
 // create a Socket.IO server and attach it to an HTTP server
 function attach (httpServer) {
   const io = new SocketIoServer(httpServer).of('v1')
@@ -70,20 +53,13 @@ function attach (httpServer) {
     socket.on('subscribe', function (data = {}, ack = noop) {
       const { type } = data
 
-      if (!type || !['blocks', 'txs'].includes(type)) {
+      if (type !== 'txs') {
         logger.warn('Subscription rejected: invalid subscription type')
         ack('invalid subscription type')
         return
       }
 
-      if (type === 'txs') {
-        subscribeToTransactions(socket, data.addresses, ack)
-        return
-      }
-
-      if (type === 'blocks') {
-        subscribeToBlocks(socket, ack)
-      }
+      subscribeToTransactions(socket, data.addresses, ack)
     })
 
     socket.on('disconnect', function (reason) {

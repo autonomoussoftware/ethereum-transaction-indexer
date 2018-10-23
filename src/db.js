@@ -24,12 +24,9 @@ const setAddressTransaction = queueMongoCall('upsertAddress')
 const getAddressTransactions = queueMongoCall('findAddressTransactions')
 const deleteAddressTransaction = queueMongoCall('deleteAddressTransaction')
 
-const getAddressTokens = queueMongoCall('findAddressTokens')
-
 module.exports = {
   deleteBlockAddresses,
   getBestBlock,
-  getAddressTokens,
   setBlockAddress,
   setBestBlock,
   getBlockAddresses,

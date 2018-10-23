@@ -1,6 +1,5 @@
 'use strict'
 
-const { map } = require('lodash/fp')
 const { maxReorgWindow, mongo: { url, dbName } } = require('config')
 const MongoClient = require('mongodb').MongoClient
 
@@ -33,10 +32,10 @@ function createApi (client) {
         .findOne({})
         .then(best => best && best.data),
 
-      upsertBlock: ({ number, type, addr, token }) => db.collection('blocks')
+      upsertBlock: ({ number, type, addr }) => db.collection('blocks')
         .updateOne(
           { number },
-          { $addToSet: { [`${type}Addrs`]: { addr, token } } },
+          { $addToSet: { [`${type}Addrs`]: { addr } } },
           { upsert: true }
         ).then(() => db.collection('blocks')
           .deleteMany({ number: { $lte: number - MAX_BLOCKS } })
@@ -50,26 +49,21 @@ function createApi (client) {
           { $unset: { [`${type}Addrs`]: undefined } }
         ),
 
-      upsertAddress: ({ type, addr, token, number, txid }) =>
+      upsertAddress: ({ type, addr, number, txid }) =>
         db.collection(addr)
           .updateOne(
-            { number, type, token },
+            { number, type },
             { $set: { txid } },
             { upsert: true }
           ),
-      findAddressTransactions: ({ type, addr, min, max, token }) =>
+      findAddressTransactions: ({ type, addr, min, max }) =>
         db.collection(addr)
-          .find({ number: { $gte: min, $lte: max }, type, token })
+          .find({ number: { $gte: min, $lte: max }, type })
           .toArray()
           .then(blocks => blocks.map(block => block.txid)),
-      deleteAddressTransaction: ({ type, addr, token, txid }) =>
+      deleteAddressTransaction: ({ type, addr, txid }) =>
         db.collection(addr)
-          .deleteOne({ type, token, txid }),
-
-      findAddressTokens: addr => db.collection(addr)
-        .find({ type: 'tok' })
-        .toArray()
-        .then(map('token'))
+          .deleteOne({ type, txid })
     },
     closeConnection: client.close.bind(client)
   }

@@ -24,7 +24,7 @@ Optionally, for test and development purposes, start both components with `npm s
 
 ## REST API
 
-### `GET /addresses/:address/transactions[?from=<number>&to=<number>]`
+### `GET /v1/addresses/:address/transactions[?from=<number>&to=<number>]`
 
 Will return a JSON array having all Ethereum transaction IDs related to the given address. Optionally specify `from` and `to` to limit the query to only that block range.
 
@@ -37,24 +37,7 @@ Will return a JSON array having all Ethereum transaction IDs related to the give
 ]
 ```
 
-### `GET /addresses/:address/tokentransactions[?tokens=<contracts>&from=<number>&to=<number>]`
-
-Will return a JSON object containing all tokens related to the address, each one with an array having all transaction IDs related to the given address and token. Optionally specify `from` and `to` to limit the query to only that block range and `tokens` as a comma separated list of token contract addresses.
-
-```json
-{
-  "0x6d1fb6b9e3bbdedbab33f0f66f7c6615bacbfb2d": [
-    "0xb756bfc1ceac6f7fda291cb360bfcaa73bd6c84b829de553406bc928441381b7"
-  ],
-  "0x02d0f0275244938bac719caa2621da17c503e347": [
-    "0xa2820760d045ffb504c9642dce3aae6090b1969b9b0f1798ddc1e86242e2fd4f",
-    "0x1a044b332dae6517b0c8405d08d85876b26659464c942e25d938d991a75eee4a",
-    "0x1fe940d80c47b06e297cf67e6830b045dfd68fe7f7c31a1f017df083b2135bad"
-  ]
-}
-```
-
-### `GET /blocks/best`
+### `GET /v1/blocks/best`
 
 Will return an object containing information on the best indexed block.
 
@@ -89,8 +72,7 @@ Subscription responses:
 {
   "event": "tx",
   "data": {
-    "type": "eth",
-    "txid": "",
+    "txid": "0x80f188d6e9b4586cc71c99af40f871860c9c7f0965784d9010b7869ea79497dc",
     "status": "confirmed"
   }
 }
@@ -98,10 +80,8 @@ Subscription responses:
 
 The data object has the following properties:
 
-- `type` can be `eth` for ETH transactions or `tok` for ERC20 token transactions.
 - `txid` is the indexed transaction id.
 - `status` can be `confirmed` or, in the case of a blockchain reorg, it could be `removed`.
-- `meta` is any other information i.e. for ERC20 tokens, it will contain the address of the token contract.
 
 ## License
 

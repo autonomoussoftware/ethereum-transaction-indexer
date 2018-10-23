@@ -1,10 +1,6 @@
 'use strict'
 
-const {
-  enode: { wsApiUrl },
-  pauseOnError,
-  subscriptionTimeout
-} = require('config')
+const { pauseOnError } = require('config')
 const beforeExit = require('before-exit')
 const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')
@@ -13,7 +9,6 @@ const util = require('util')
 const callsPerSec = require('../../lib/calls-per-sec')
 const debounce = require('../../lib/promise-lead-debounce')
 const inBN = require('../../lib/in-BN')
-const { subscribe } = require('../../lib/web3-block-subscribe')
 
 const logger = require('../logger')
 
@@ -122,11 +117,8 @@ function indexPastBlocks () {
 function indexIncomingBlocks () {
   logger.info('Starting block listener')
 
-  timedStoreBestBlock.stop()
-
-  subscribe({
-    url: wsApiUrl,
-    onData: debounce(function (header) {
+  web3.eth.subscribe('newBlockHeaders')
+    .on('data', debounce(function (header) {
       logger.info('New block received', header.number, header.hash)
 
       return web3.eth.getBlock(header.hash)
@@ -134,12 +126,10 @@ function indexIncomingBlocks () {
         .catch(function (err) {
           logger.warn('Could not index new block', err.message)
         })
-    }),
-    onError (err) {
+    }))
+    .on('error', function (err) {
       logger.warn('Subscription failure', err.message)
-    },
-    timeout: subscriptionTimeout
-  })
+    })
 }
 
 // start indexing
@@ -151,6 +141,7 @@ function start () {
   })
 
   return indexPastBlocks()
+    .then(timedStoreBestBlock.stop)
     .then(indexIncomingBlocks)
 }
 
