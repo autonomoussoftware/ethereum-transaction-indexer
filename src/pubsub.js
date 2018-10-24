@@ -7,8 +7,8 @@ const util = require('util')
 const logger = require('./logger')
 
 // Create and return a Redis Pub-Sub client
-function createRedisPubSub (redisUrl) {
-  const client = redis.createClient(redisUrl)
+function createRedisPubSub (url) {
+  const client = redis.createClient(url)
 
   client.on('error', function (err) {
     logger.error('Redis error on pubsub', err)
@@ -54,8 +54,8 @@ function getInProcessPubSub () {
   }
 }
 
-function pubsub (redisUrl) {
-  return redisUrl ? createRedisPubSub(redisUrl) : getInProcessPubSub()
+function pubsub (url) {
+  return url ? createRedisPubSub(url) : getInProcessPubSub()
 }
 
 module.exports = pubsub

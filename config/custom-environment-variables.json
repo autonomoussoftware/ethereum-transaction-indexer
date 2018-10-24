@@ -21,6 +21,7 @@
   },
   "pauseOnError": "INDEXER_DELAY_ON_ERROR",
   "port": "PORT",
+  "pubsub": "PUBSUB",
   "redis": {
     "url": "REDIS_URL"
   }

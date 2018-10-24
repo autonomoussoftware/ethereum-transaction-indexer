@@ -1,16 +1,16 @@
 'use strict'
 
-const { redisUrl } = require('config')
+const { pubsub, redis: { url } } = require('config')
 
 const db = require('../db')
 const logger = require('../logger')
-const pubsub = require('../pubsub')
+const getPubSub = require('../pubsub')
 
 // eslint-disable-next-line max-len
 const NULL_TX_ID = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 // create a pubsub connection
-const pub = pubsub(redisUrl)
+const pub = getPubSub(pubsub === 'redis' && url)
 
 // closes the pubsub connection
 const closePubsub = () => pub.quit()
