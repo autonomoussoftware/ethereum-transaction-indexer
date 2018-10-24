@@ -1,9 +1,11 @@
 'use strict'
 
+const { redisUrl } = require('config')
+
 const logger = require('../logger')
 const pubsub = require('../pubsub')
 
-const sub = pubsub()
+const sub = pubsub(redisUrl)
 
 // attach to DB events and emit to subscribers
 function attachToDb (io) {

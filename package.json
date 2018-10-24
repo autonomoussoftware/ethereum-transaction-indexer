@@ -15,7 +15,7 @@
     "lint": "eslint --cache .",
     "precommit": "npm run lint",
     "prepush": "npm run check && npm run test",
-    "start": "forever server.js",
+    "start": "REDIS_URL= forever server.js",
     "test": "NODE_ENV=test mocha"
   },
   "dependencies": {

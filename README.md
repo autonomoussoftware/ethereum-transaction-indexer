@@ -56,7 +56,7 @@ Will return an object containing information on the best indexed block.
 
 ## Events interface
 
-The Socket.IO events interface is available at the following route: `/v1`.
+The Socket.IO events interface is available at the following route: `/v2`.
 
 ### `subscribe`
 

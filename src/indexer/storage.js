@@ -1,5 +1,7 @@
 'use strict'
 
+const { redisUrl } = require('config')
+
 const db = require('../db')
 const logger = require('../logger')
 const pubsub = require('../pubsub')
@@ -8,7 +10,7 @@ const pubsub = require('../pubsub')
 const NULL_TX_ID = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 // create a pubsub connection
-const pub = pubsub()
+const pub = pubsub(redisUrl)
 
 // closes the pubsub connection
 const closePubsub = () => pub.quit()
