@@ -3,6 +3,9 @@
     "ipcPath": "ENODE_IPC_PATH"
   },
   "logger": {
+    "Console": {
+      "level": "LOGGER_CONSOLE_LEVEL"
+    },
     "Papertrail": {
       "host": "LOGGER_PAPERTRAIL_HOST",
       "port": "LOGGER_PAPERTRAIL_PORT",
