@@ -7,23 +7,6 @@
 Simple transaction indexing service for Ethereum blockchains.
 This service will index transactions, provide a REST API to query all transactions related to a given address and a [Socket.IO](https://socket.io/) subscription mechanism to be notified when new transactions are indexed.
 
-## Requirements
-
-- [Node.JS v8](https://nodejs.org/)
-- [Redis v4](https://redis.io/)
-- Ethereum node (i.e. [Geth](https://geth.ethereum.org/) or [Parity](https://www.parity.io/))
-
-## Configuration
-
-Set proper environment variables or create an `<environment>.json` or `hostname.json` file in the `config` folder with specific configuration.
-Follow the [config](https://github.com/lorenwest/node-config/) module guidelines.
-
-## Start
-
-Install dependencies with `npm install` and then start the indexer or the API with `npm run indexer` or `npm run api`.
-
-Optionally, for test and development purposes, start both components with `npm start`.
-
 ## REST API
 
 ### `GET /v1/addresses/:address/transactions[?from=<number>&to=<number>]`
@@ -87,6 +70,55 @@ The data object has the following properties:
 
 - `txid` is the indexed transaction id.
 - `status` can be `confirmed` or, in the case of a blockchain reorg, it could be `removed`.
+
+## Requirements
+
+- Ethereum node (i.e. [Geth v1](https://geth.ethereum.org/) or [Parity v1.x](https://www.parity.io/))
+- [MongoDB v4](https://www.mongodb.com/)
+- [Redis v4](https://redis.io/) - Optional
+- [Node.JS v8](https://nodejs.org/)
+
+## Configuration
+
+Default configuration can be customized by setting environment variables or createing an `<environment>.json` or `<hostname>.json` file in the `config` folder following the [config](https://github.com/lorenwest/node-config/) module guidelines.
+
+## Start
+
+Install dependencies with `npm install` and then start the indexer or the API with `npm run indexer` or `npm run api`.
+
+Optionally, for test and development purposes, start both components with `npm start`.
+
+The indexer API will listen on the port 3005 by default.
+
+## Convenience all-in-one install & run script
+
+To easily install and execute the indexer in a single AWS EC2 Ubuntu VM, clone the repository, set the following environment variables and execute the script `setup.sh`:
+
+- `COIN`: `eth` or `etc`
+- `CHAIN`: `mainnet` or the name of the chain param required by Parity.
+- `ENV`: `prod` or `test`
+- `PAPERTRAIL_HOST`: `logs.papertrailapp.com` or the proper logging URL
+- `PAPERTRAIL_PORT`: to the proper port
+
+The script will:
+
+- Install and start Parity in a tmux session `parity`.
+- Install, configure and start `remote-syslog2` to send Parity logs to Papertrail.
+- Install MongoDB.
+- Install Node.js.
+- Setup and start the indexer, both the parser and the API in the same process, in a tmux session `indexer`.
+
+During the synchronization phase, a c5.2xlarge VM type is recommended to provide enough CPU capacity and at least 16 GBytes of RAM.
+After both Parity and the indexer are up to date, the VM type could be switched back to t3.xlarge or similar.
+
+The storage required is:
+
+Coin | Chain | Storage
+--- | --- | ---
+ETH | mainnet | 128 GBytes (estimated)
+ETH | testnet (ropsten) | 32 GBytes (estimated)
+ETC | mainnet (classic) | 32 GBytes (estimated)
+ETC | testnet (morden) | 24 GBytes
 
 ## License
 
