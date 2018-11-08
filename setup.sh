@@ -55,6 +55,15 @@ echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongod
 sudo apt-get update
 sudo apt-get install -y mongodb-org
 
+sudo mkdir -p /etc/systemd/system/mongod.service.d
+cat > override.conf << EOF
+[Service]
+LimitNOFILE=infinity
+LimitNPROC=infinity
+EOF
+sudo mv override.conf /etc/systemd/system/mongod.service.d/
+sudo systemctl daemon-reload
+
 sudo service mongod start
 
 # Install Node.js
