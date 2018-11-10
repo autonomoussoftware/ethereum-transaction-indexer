@@ -5,11 +5,16 @@ const web3 = require('./web3')
 // recursively populate the tree of blocks with the given block
 const populateBlocksTree = (tree, hash) =>
   web3.eth.getBlock(hash)
-    .then(function ({ parentHash }) {
+    .then(function (block) {
+      if (!block) {
+        return true
+      }
+
       if (tree.completed) {
         return true
       }
 
+      const { parentHash } = block
       tree[hash] = { parentHash }
 
       if (tree[parentHash]) {
