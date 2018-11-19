@@ -22,31 +22,13 @@ cat > start-parity.sh << EOF
 parity \
   --chain ${CHAIN} \
   --log-file ~/parity.log \
-  --reserved-peers ~/reserved.txt
+  --no-warp \
+  --reserved-peers ~/reserved.txt \
+  $@
 EOF
 chmod +x start-parity.sh
 
 tmux new-session -d -s parity ./start-parity.sh
-
-# Install and start remote_syslog2
-
-wget https://github.com/papertrail/remote_syslog2/releases/download/v0.20/remote-syslog2_0.20_amd64.deb
-sudo dpkg -i remote-syslog2_0.20_amd64.deb
-sudo apt-get install -f
-
-cat > log_files.yml << EOF
-files:
-  - path: /home/ubuntu/parity.log
-    tag: metronome-${COIN}-parity-${CHAIN}-${ENV}
-destination:
-  host: ${PAPERTRAIL_HOST}
-  port: ${PAPERTRAIL_PORT}
-  protocol: tls
-EOF
-sudo mv log_files.yml /etc/log_files.yml
-
-sudo remote_syslog
-sudo update-rc.d remote_syslog defaults
 
 # Install and start MongoDB
 
@@ -65,6 +47,28 @@ sudo mv override.conf /etc/systemd/system/mongod.service.d/
 sudo systemctl daemon-reload
 
 sudo service mongod start
+
+# Install and start remote_syslog2
+
+wget https://github.com/papertrail/remote_syslog2/releases/download/v0.20/remote-syslog2_0.20_amd64.deb
+sudo dpkg -i remote-syslog2_0.20_amd64.deb
+sudo apt-get install -f
+
+cat > log_files.yml << EOF
+files:
+  - path: /home/ubuntu/parity.log
+    tag: metronome-${COIN}-parity-${CHAIN}-${ENV}
+  - path: /var/log/mongodb/mongod.log
+    tag: metronome-${COIN}-mongo-${CHAIN}-${ENV}
+destination:
+  host: ${PAPERTRAIL_HOST}
+  port: ${PAPERTRAIL_PORT}
+  protocol: tls
+EOF
+sudo mv log_files.yml /etc/log_files.yml
+
+sudo remote_syslog
+sudo update-rc.d remote_syslog defaults
 
 # Install Node.js
 
