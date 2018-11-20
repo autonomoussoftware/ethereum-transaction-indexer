@@ -11,6 +11,7 @@ const debounce = require('../../lib/promise-lead-debounce')
 const inBN = require('../../lib/in-BN')
 
 const logger = require('../logger')
+const web3 = require('../web3')
 
 const {
   closePubsub,
@@ -21,7 +22,6 @@ const {
 } = require('./storage')
 const calculateNextBlock = require('./next')
 const parseBlock = require('./parser')
-const web3 = require('./web3')
 
 const asyncSetTimeout = util.promisify(setTimeout)
 
@@ -42,7 +42,7 @@ const lte = (a, b) => inBN('lte', a, b)
 const timedStoreBestBlock = callsPerSec(
   storeBestBlock,
   function (speed, [{ number } = {}]) {
-    logger.info('Parsed block %s at %s [blocks/sec]', number, speed)
+    logger.info('Parsed block %s at %s blocks/sec', number, speed)
   }
 )
 

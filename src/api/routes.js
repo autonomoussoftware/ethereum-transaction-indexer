@@ -5,6 +5,7 @@ const restifyErrors = require('restify-errors')
 const Router = require('restify-router').Router
 
 const logger = require('../logger')
+const web3 = require('../web3')
 
 const { promiseToMiddleware } = require('./route-utils')
 const { parseCardinal, parseQuery } = require('./query-parsers')
@@ -38,9 +39,17 @@ function getAddressTransactions (req, res) {
 // return the best parsed block
 const getBlocksBest = (req, res) =>
   db.getBestBlock()
-    .then(function (bestBlock) {
-      logger.verbose('<--', bestBlock)
-      res.json(pick(bestBlock, ['number', 'hash', 'totalDifficulty']))
+    .then(function (block) {
+      logger.verbose('<--', block)
+      res.json(pick(block, ['number', 'hash', 'totalDifficulty']))
+    })
+
+// return the last known block
+const getBlocksLast = (req, res) =>
+  web3.eth.getBlock('latest')
+    .then(function (block) {
+      logger.verbose('<--', block)
+      res.json(pick(block, ['number', 'hash', 'totalDifficulty']))
     })
 
 const router = new Router()
@@ -48,6 +57,11 @@ const router = new Router()
 router.get(
   '/blocks/best',
   promiseToMiddleware(getBlocksBest)
+)
+
+router.get(
+  '/blocks/last',
+  promiseToMiddleware(getBlocksLast)
 )
 
 router.get(

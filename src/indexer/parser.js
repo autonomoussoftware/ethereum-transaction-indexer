@@ -3,8 +3,7 @@
 const { toLower } = require('lodash')
 
 const logger = require('../logger')
-
-const web3 = require('./web3')
+const web3 = require('../web3')
 
 const DEPLOY_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000000'
 

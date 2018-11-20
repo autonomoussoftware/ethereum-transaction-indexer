@@ -1,6 +1,6 @@
 'use strict'
 
-const web3 = require('./web3')
+const web3 = require('../web3')
 
 // recursively populate the tree of blocks with the given block
 const populateBlocksTree = (tree, hash) =>
