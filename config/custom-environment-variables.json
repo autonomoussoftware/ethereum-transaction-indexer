@@ -27,5 +27,6 @@
   "pubsub": "PUBSUB",
   "redis": {
     "url": "REDIS_URL"
-  }
+  },
+  "syncTimerSec": "SYNC_TIMER_SEC"
 }

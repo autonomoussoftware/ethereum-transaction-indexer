@@ -31,5 +31,6 @@
   "pubsub": "redis",
   "redis": {
     "url": "redis://localhost:6379"
-  }
+  },
+  "syncTimerSec": 1000
 }

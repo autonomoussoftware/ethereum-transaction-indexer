@@ -1,6 +1,6 @@
 'use strict'
 
-const { pauseOnError } = require('config')
+const { pauseOnError, syncTimerSec } = require('config')
 const beforeExit = require('before-exit')
 const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')
@@ -41,9 +41,14 @@ const lte = (a, b) => inBN('lte', a, b)
 // create a spied storeBestBlock to log calls rate
 const timedStoreBestBlock = callsPerSec(
   storeBestBlock,
-  function (speed, [{ number } = {}]) {
-    logger.info('Parsed block %s at %s blocks/sec', number, speed)
-  }
+  function (calls, [{ number } = {}]) {
+    logger.info(
+      'Parsed block %s at %s blocks/sec',
+      number,
+      Math.round(calls / syncTimerSec)
+    )
+  },
+  syncTimerSec
 )
 
 // index a single block considering reorgs
