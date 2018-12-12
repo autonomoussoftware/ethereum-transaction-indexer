@@ -45,7 +45,7 @@ const timedStoreBestBlock = callsPerSec(
     logger.info(
       'Parsed block %s at %s blocks/sec',
       number,
-      Math.round(calls / syncTimerSec)
+      Math.round(calls * 1000 / syncTimerSec)
     )
   },
   syncTimerSec
