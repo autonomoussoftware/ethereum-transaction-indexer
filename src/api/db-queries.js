@@ -2,7 +2,13 @@
 
 const promiseAllProps = require('promise-all-props')
 
-const db = require('../db')
+// Global reference to the database API
+let db
+
+// Sets the database reference
+function setDb (ref) {
+  db = ref
+}
 
 // get best block from db and parse the string
 const getBestBlock = () => db.getBestBlock()
@@ -23,5 +29,6 @@ const getAddressTransactions = ({ address, from, to }) =>
 module.exports = {
   getAddressTransactions,
   getBestBlock,
-  getBestBlockNumber
+  getBestBlockNumber,
+  setDb
 }

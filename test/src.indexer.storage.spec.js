@@ -42,9 +42,10 @@ describe('Parser storage', function () {
     }
 
     const storage = proxyquire('../src/indexer/storage', {
-      '../db': dbStub,
       '../pubsub': pubSubStub
     })
+
+    storage.setDb(dbStub)
 
     return storage.removeData({ number: 4 })
       .then(function () {
