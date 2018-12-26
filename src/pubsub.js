@@ -54,8 +54,8 @@ function getInProcessPubSub () {
   }
 }
 
-function pubsub (url) {
+function createPubSub (url) {
   return url ? createRedisPubSub(url) : getInProcessPubSub()
 }
 
-module.exports = pubsub
+module.exports = createPubSub
