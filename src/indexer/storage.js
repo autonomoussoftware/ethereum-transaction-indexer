@@ -2,12 +2,19 @@
 
 const { pubsub, redis: { url } } = require('config')
 
-const db = require('../db')
 const logger = require('../logger')
 const getPubSub = require('../pubsub')
 
 // eslint-disable-next-line max-len
 const NULL_TX_ID = '0x0000000000000000000000000000000000000000000000000000000000000000'
+
+// Global reference to the database API
+let db
+
+// Sets the database reference
+function setDb (ref) {
+  db = ref
+}
 
 // create a pubsub connection
 const pub = getPubSub(pubsub === 'redis' && url)
@@ -73,6 +80,7 @@ module.exports = {
   closePubsub,
   getBestBlock,
   removeData,
+  setDb,
   storeBestBlock,
   storeData
 }

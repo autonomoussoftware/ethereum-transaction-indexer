@@ -17,50 +17,48 @@ const initCollections = dbName => function (client) {
 const createApi = (dbName, maxBlocks) => function (client) {
   const db = client.db(dbName)
   return {
-    db: {
-      insertBestBlock: data => db.collection('bestBlock')
-        .insertOne(data),
+    setBestBlock: data => db.collection('bestBlock')
+      .insertOne(data),
 
-      findBestBlock: () => db.collection('bestBlock')
-        .findOne({}),
+    getBestBlock: () => db.collection('bestBlock')
+      .findOne({}),
 
-      upsertBlock: ({ number, addr }) => db.collection('blocks')
+    setBlockAddress: ({ number, addr }) => db.collection('blocks')
+      .updateOne(
+        { number },
+        { $addToSet: { addrs: addr } },
+        { upsert: true }
+      ).then(() => db.collection('blocks')
+        .deleteMany({ number: { $lte: number - maxBlocks } })
+      ),
+
+    getBlockAddresses: ({ number }) => db.collection('blocks')
+      .findOne({ number })
+      .then(block => block ? block.addrs : []),
+
+    deleteBlockAddresses: ({ number }) => db.collection('blocks')
+      .updateOne(
+        { number },
+        { $unset: { addrs: undefined } }
+      ),
+
+    setAddressTransaction: ({ addr, number, txid }) =>
+      db.collection(addr)
         .updateOne(
           { number },
-          { $addToSet: { addrs: addr } },
+          { $set: { txid } },
           { upsert: true }
-        ).then(() => db.collection('blocks')
-          .deleteMany({ number: { $lte: number - maxBlocks } })
         ),
 
-      findBlockAddresses: ({ number }) => db.collection('blocks')
-        .findOne({ number })
-        .then(block => block ? block.addrs : []),
+    getAddressTransactions: ({ addr, min, max }) =>
+      db.collection(addr)
+        .find({ number: { $gte: min, $lte: max } })
+        .toArray()
+        .then(blocks => blocks.map(block => block.txid)),
 
-      deleteBlock: ({ number }) => db.collection('blocks')
-        .updateOne(
-          { number },
-          { $unset: { addrs: undefined } }
-        ),
-
-      upsertAddress: ({ addr, number, txid }) =>
-        db.collection(addr)
-          .updateOne(
-            { number },
-            { $set: { txid } },
-            { upsert: true }
-          ),
-
-      findAddressTransactions: ({ addr, min, max }) =>
-        db.collection(addr)
-          .find({ number: { $gte: min, $lte: max } })
-          .toArray()
-          .then(blocks => blocks.map(block => block.txid)),
-
-      deleteAddressTransaction: ({ addr, txid }) =>
-        db.collection(addr)
-          .deleteOne({ txid })
-    }
+    deleteAddressTransaction: ({ addr, txid }) =>
+      db.collection(addr)
+        .deleteOne({ txid })
   }
 }
 

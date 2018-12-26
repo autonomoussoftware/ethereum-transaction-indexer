@@ -17,9 +17,11 @@ const {
   closePubsub,
   getBestBlock,
   removeData,
+  setDb,
   storeBestBlock,
   storeData
 } = require('./storage')
+const db = require('../db')
 const calculateNextBlock = require('./next')
 const parseBlock = require('./parser')
 
@@ -145,7 +147,9 @@ function start () {
     return closePubsub()
   })
 
-  return indexPastBlocks()
+  return db.init()
+    .then(setDb)
+    .then(indexPastBlocks)
     .then(timedStoreBestBlock.stop)
     .then(indexIncomingBlocks)
 }
