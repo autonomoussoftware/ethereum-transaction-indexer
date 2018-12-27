@@ -1,6 +1,7 @@
 {
   "enode": {
-    "ipcPath": "ENODE_IPC_PATH"
+    "ipcPath": "ENODE_IPC_PATH",
+    "wsPath": "ENODE_WS_PATH"
   },
   "logger": {
     "Console": {

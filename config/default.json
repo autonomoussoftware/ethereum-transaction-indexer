@@ -1,6 +1,7 @@
 {
   "enode": {
-    "ipcPath": "~/.local/share/io.parity.ethereum/jsonrpc.ipc"
+    "ipcPath": "~/.local/share/io.parity.ethereum/jsonrpc.ipc",
+    "wsPath": "ws://localhost:8546"
   },
   "events": {
     "maxAddresses": 10
