@@ -37,7 +37,7 @@ function subscribeToTransactions (socket, addresses, ack) {
       return
     }
 
-    logger.info('Subscription to txs processed', addresses)
+    logger.verbose('Subscription to txs processed', addresses)
 
     ack()
   })
@@ -45,9 +45,17 @@ function subscribeToTransactions (socket, addresses, ack) {
 
 // create a Socket.IO server and attach it to an HTTP server
 function attach (httpServer) {
-  const io = new SocketIoServer(httpServer).of('v2')
+  const io = new SocketIoServer(httpServer)
 
-  io.on('connection', function (socket) {
+  const v1 = io.of('v1')
+
+  v1.use(function (_, next) {
+    next(new Error('Deprecated'))
+  })
+
+  const v2 = io.of('v2')
+
+  v2.on('connection', function (socket) {
     logger.verbose('New connection', socket.id)
 
     socket.on('subscribe', function (addresses = [], ack = noop) {
@@ -59,7 +67,7 @@ function attach (httpServer) {
     })
   })
 
-  return attachToDb(io)
+  return attachToDb(v2)
 }
 
 // detach everything before shutting down

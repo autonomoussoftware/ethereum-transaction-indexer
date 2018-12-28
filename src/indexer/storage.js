@@ -65,7 +65,7 @@ const getBestBlock = () =>
 
 // update the record of the best indexed block
 function storeBestBlock ({ number, hash, totalDifficulty }) {
-  logger.verbose('New best block', number, hash, totalDifficulty)
+  logger.info('New best block', number, hash)
   return db.setBestBlock({ number, hash, totalDifficulty })
 }
 

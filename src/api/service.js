@@ -35,7 +35,7 @@ function start () {
     return stop()
   })
 
-  routes.applyRoutes(server, '/v1')
+  routes.applyRoutes(server)
 
   // eslint-disable-next-line max-params
   server.on('restifyError', function (req, res, err, callback) {
