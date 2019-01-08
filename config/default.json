@@ -1,6 +1,6 @@
 {
+  "dbEngine": "redis",
   "enode": {
-    "ipcPath": "~/.local/share/io.parity.ethereum/jsonrpc.ipc",
     "wsPath": "ws://localhost:8546"
   },
   "events": {

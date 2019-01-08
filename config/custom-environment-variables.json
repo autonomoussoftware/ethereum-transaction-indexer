@@ -1,4 +1,5 @@
 {
+  "dbEngine": "DB_ENGINE",
   "enode": {
     "ipcPath": "ENODE_IPC_PATH",
     "wsPath": "ENODE_WS_PATH"

@@ -1,6 +1,7 @@
 'use strict'
 
 const {
+  dbEngine,
   maxReorgWindow,
   mongo: { url: mongoUrl, dbName },
   redis: { url: redisUrl }
@@ -12,7 +13,7 @@ const createRedisClient = require('./redis')
 function init () {
   // Keep record of blocks only within the reorg window. Blocks are mined in
   // average every 15 seconds.
-  return mongoUrl
+  return dbEngine === 'mongo'
     ? createMongoClient(mongoUrl, dbName, maxReorgWindow / 15)
     : createRedisClient(redisUrl, maxReorgWindow)
 }
