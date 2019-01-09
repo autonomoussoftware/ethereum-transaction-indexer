@@ -4,6 +4,8 @@ const config = require('config')
 
 const logger = require('../logger')
 
+logger.debug('API startup configuration: %j', config)
+
 if (config.newRelic && config.newRelic.licenseKey) {
   require('newrelic')
 }
