@@ -24,7 +24,6 @@
     "licenseKey": "NEW_RELIC_LICENSE_KEY",
     "loggingLevel": "NEW_RELIC_LOGGING_LEVEL"
   },
-  "pauseOnError": "INDEXER_DELAY_ON_ERROR",
   "port": "PORT",
   "pubsub": "PUBSUB",
   "redis": {

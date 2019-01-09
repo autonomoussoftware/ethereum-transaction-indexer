@@ -1,10 +1,9 @@
 'use strict'
 
-const { pauseOnError, syncTimerSec } = require('config')
+const { syncTimerSec } = require('config')
 const beforeExit = require('before-exit')
 const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')
-const util = require('util')
 
 const callsPerSec = require('../../lib/calls-per-sec')
 const debounce = require('../../lib/promise-lead-debounce')
@@ -24,8 +23,6 @@ const {
 const db = require('../db')
 const calculateNextBlock = require('./next')
 const parseBlock = require('./parser')
-
-const asyncSetTimeout = util.promisify(setTimeout)
 
 // index a single block and store indexed information
 const indexBlock = ({ number, hash }) =>
@@ -113,11 +110,6 @@ const indexNextBlock = () =>
 function indexPastBlocks () {
   logger.info('Indexing past blocks')
   return indexNextBlock()
-    .catch(function (err) {
-      logger.warn('Could not index past block', err)
-      return asyncSetTimeout(pauseOnError)
-        .then(() => indexPastBlocks())
-    })
 }
 
 // start listening for new blocks and index on new incoming

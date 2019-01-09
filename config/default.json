@@ -27,7 +27,6 @@
     "dbName": "indexer"
   },
   "newRelic": {},
-  "pauseOnError": 2000,
   "port": 3005,
   "pubsub": "redis",
   "redis": {
