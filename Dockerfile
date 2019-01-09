@@ -12,6 +12,8 @@ WORKDIR /usr/src/indexer
 COPY package.json .
 COPY package-lock.json .
 RUN npm install
+# Install dependencies again to ensure all packages are available
+RUN npm install
 COPY . .
 
 CMD ["npm", "start"]
