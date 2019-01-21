@@ -43,14 +43,53 @@ function subscribeToTransactions (socket, addresses, ack) {
   })
 }
 
+// join the blocks room
+function subscribeToBlocks (socket, ack) {
+  logger.verbose('-->> subscribe blocks')
+
+  socket.join('block', function (err) {
+    if (err) {
+      logger.warn('Could not complete subscription', err.message)
+      ack('error on subscription')
+      return
+    }
+
+    logger.info('Subscription to blocks processed')
+
+    ack()
+  })
+}
+
 // create a Socket.IO server and attach it to an HTTP server
 function attach (httpServer) {
   const io = new SocketIoServer(httpServer)
 
+  // Version 1 is deprecated
   const v1 = io.of('v1')
 
-  v1.use(function (_, next) {
-    next(new Error('Deprecated'))
+  v1.on('connection', function (socket) {
+    logger.verbose('New connection', socket.id)
+    logger.warn('Client using deprecated v1 API')
+
+    socket.on('subscribe', function (data = {}, ack = noop) {
+      const { type } = data
+
+      if (!type || !['blocks', 'txs'].includes(type)) {
+        logger.warn('Subscription rejected: invalid subscription type')
+        ack('invalid subscription type')
+        return
+      }
+
+      if (type === 'txs') {
+        subscribeToTransactions(socket, data.addresses, ack)
+      } else if (type === 'blocks') {
+        subscribeToBlocks(socket, ack)
+      }
+    })
+
+    socket.on('disconnect', function (reason) {
+      logger.verbose('Connection closed', socket.id, reason)
+    })
   })
 
   const v2 = io.of('v2')
@@ -63,11 +102,14 @@ function attach (httpServer) {
     })
 
     socket.on('disconnect', function (reason) {
-      logger.verbose('Connection closed', reason)
+      logger.verbose('Connection closed', socket.id, reason)
     })
   })
 
-  return attachToDb(v2)
+  return Promise.all([
+    attachToDb(v1),
+    attachToDb(v2)
+  ])
 }
 
 // detach everything before shutting down

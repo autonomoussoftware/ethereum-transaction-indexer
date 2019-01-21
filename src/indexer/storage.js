@@ -1,6 +1,7 @@
 'use strict'
 
 const { pubsub, redis: { url } } = require('config')
+const { throttle } = require('lodash')
 
 const logger = require('../logger')
 const getPubSub = require('../pubsub')
@@ -63,10 +64,20 @@ const getBestBlock = () =>
       totalDifficulty: '0'
     })
 
+// throttle block events during sync
+const publishBestBlock = throttle(
+  (hash, number) => pub.publish('block', `${hash}:${number}`),
+  1000
+)
+
 // update the record of the best indexed block
 function storeBestBlock ({ number, hash, totalDifficulty }) {
   logger.info('New best block', number, hash)
   return db.setBestBlock({ number, hash, totalDifficulty })
+    .then(function () {
+      logger.verbose('Publishing new block', number, hash)
+      return publishBestBlock(hash, number)
+    })
 }
 
 // store parsed address to transaction data in the db
