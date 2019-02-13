@@ -12,6 +12,8 @@ function createClient (url, maxBlocks) {
   // Handle errors
   client.on('error', function (err) {
     logger.error('Redis error', err)
+
+    // Can't continue if there is a database error
     process.exit(1)
   })
 
