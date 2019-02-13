@@ -11,8 +11,9 @@ RUN apt-get install -y nodejs
 WORKDIR /usr/src/indexer
 COPY package.json .
 COPY package-lock.json .
-RUN npm install
-# Install dependencies again to ensure all packages are available
+COPY patches patches
+RUN npm install --unsafe-perm 
+# Install dependencies again to ensure all packages are installed (npm+git bug?)
 RUN npm install
 COPY . .
 
