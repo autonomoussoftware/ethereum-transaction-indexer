@@ -8,12 +8,13 @@
   "scripts": {
     "api": "node src/api/index.js",
     "docker:build": "docker build -t ethereum-transaction-indexer .",
-    "check": "dependency-check . && dependency-check . --unused --no-dev --ignore-module winston --ignore-module winston-papertrail --ignore-module winston-sentry-transport",
+    "check": "dependency-check . && dependency-check . --unused --no-dev --ignore-module winston --ignore-module winston-papertrail --ignore-module winston-sentry-transport --ignore-module websocket-reconnector",
     "check:outdated": "npm-check -p -i husky -i eslint-config-plugin:*",
     "coverage": "nyc --lines 95 --functions 95 --branches 95 --reporter=lcov --reporter=text npm test",
     "indexer": "node src/indexer/index.js",
     "lint": "eslint --cache .",
     "precommit": "npm run lint",
+    "prepare": "patch-package",
     "prepush": "npm run check && npm run test",
     "start": "PUBSUB='in-process' node server.js",
     "test": "mocha"
@@ -34,8 +35,8 @@
     "restify-errors": "6.1.1",
     "restify-router": "0.5.1",
     "socket.io": "2.1.1",
-    "web3": "1.0.0-beta.36",
-    "web3-utils": "1.0.0-beta.34",
+    "web3": "1.0.0-beta.37",
+    "websocket-reconnector": "1.1.1",
     "winston": "2.4.4",
     "winston-papertrail": "1.0.5",
     "winston-sentry-transport": "1.0.0"
@@ -57,6 +58,7 @@
     "mocha": "5.2.0",
     "npm-check": "5.9.0",
     "nyc": "13.2.0",
+    "patch-package": "5.1.2",
     "proxyquire": "2.1.0"
   }
 }

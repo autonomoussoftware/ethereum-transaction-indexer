@@ -1,7 +1,7 @@
 'use strict'
 
 const { events: { maxAddresses } } = require('config')
-const { isAddress, isHexStrict } = require('web3-utils')
+const { isAddress, isHexStrict } = require('web3').utils
 const { isArray, negate, noop, overEvery, some } = require('lodash')
 const { toLower } = require('lodash')
 const SocketIoServer = require('socket.io')

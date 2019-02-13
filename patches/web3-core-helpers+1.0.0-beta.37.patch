@@ -1,0 +1,12 @@
+patch-package
+--- a/node_modules/web3-core-helpers/src/formatters.js
++++ b/node_modules/web3-core-helpers/src/formatters.js
+@@ -216,7 +216,7 @@ var outputTransactionReceiptFormatter = function (receipt){
+         receipt.contractAddress = utils.toChecksumAddress(receipt.contractAddress);
+     }
+ 
+-    if(typeof receipt.status !== 'undefined') {
++    if(typeof receipt.status === 'string') {
+         receipt.status = Boolean(parseInt(receipt.status));
+     }
+ 
