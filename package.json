@@ -4,20 +4,19 @@
   "license": "MIT",
   "author": "Gabriel Montes <gabriel@bloq.com>",
   "main": "server.js",
-  "repository": "autonomoussoftware/ethereum-blockchain-indexer",
+  "repository": "autonomoussoftware/ethereum-transaction-indexer",
   "scripts": {
     "api": "node src/api/index.js",
     "docker:build": "docker build -t ethereum-transaction-indexer .",
     "check": "dependency-check . && dependency-check . --unused --no-dev --ignore-module winston --ignore-module winston-papertrail --ignore-module winston-sentry-transport",
     "check:outdated": "npm-check -p -i husky -i eslint-config-plugin:*",
     "coverage": "nyc --lines 95 --functions 95 --branches 95 --reporter=lcov --reporter=text npm test",
-    "dev": "nodemon -w .",
     "indexer": "node src/indexer/index.js",
     "lint": "eslint --cache .",
     "precommit": "npm run lint",
     "prepush": "npm run check && npm run test",
     "start": "PUBSUB='in-process' node server.js",
-    "test": "NODE_ENV=test mocha"
+    "test": "mocha"
   },
   "dependencies": {
     "@bloq/service-logger": "git://github.com/bloq/service-logger.git",
@@ -25,7 +24,7 @@
     "bn.js": "4.11.8",
     "config": "1.30.0",
     "lodash": "4.17.11",
-    "mongodb": "3.1.8",
+    "mongodb": "3.1.13",
     "newrelic": "4.9.0",
     "p-memoize": "1.0.0",
     "promise-all-props": "1.0.1",
@@ -43,26 +42,21 @@
   },
   "devDependencies": {
     "chai": "4.2.0",
-    "dependency-check": "3.2.1",
-    "eslint": "5.7.0",
-    "eslint-config-bloq": "1.3.0",
+    "dependency-check": "3.3.0",
+    "eslint": "5.13.0",
+    "eslint-config-bloq": "2.0.0",
     "eslint-config-standard": "12.0.0",
-    "eslint-plugin-import": "2.14.0",
-    "eslint-plugin-jsdoc": "3.9.1",
-    "eslint-plugin-mocha": "5.2.0",
-    "eslint-plugin-node": "7.0.1",
-    "eslint-plugin-prefer-arrow": "1.1.3",
+    "eslint-plugin-import": "2.16.0",
+    "eslint-plugin-jsdoc": "4.1.0",
+    "eslint-plugin-mocha": "5.2.1",
+    "eslint-plugin-node": "8.0.1",
+    "eslint-plugin-prefer-arrow": "1.1.4",
     "eslint-plugin-promise": "4.0.1",
     "eslint-plugin-standard": "4.0.0",
-    "husky": "1.1.2",
+    "husky": "1.3.1",
     "mocha": "5.2.0",
-    "nodemon": "1.18.4",
     "npm-check": "5.9.0",
-    "nyc": "13.1.0",
+    "nyc": "13.2.0",
     "proxyquire": "2.1.0"
-  },
-  "engines": {
-    "node": "8",
-    "npm": "5"
   }
 }

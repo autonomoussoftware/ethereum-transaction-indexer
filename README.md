@@ -73,10 +73,9 @@ The data object has the following properties:
 
 ## Requirements
 
-- Ethereum node (i.e. [Geth v1](https://geth.ethereum.org/) or [Parity v1.x](https://www.parity.io/))
-- [MongoDB v4](https://www.mongodb.com/)
-- [Redis v4](https://redis.io/) - Optional
-- [Node.JS v8](https://nodejs.org/)
+- Ethereum node (i.e. [Geth](https://geth.ethereum.org/) or [Parity](https://www.parity.io/))
+- [MongoDB v4](https://www.mongodb.com/) or [Redis v4](https://redis.io/)
+- [Node.JS](https://nodejs.org/)
 
 ## Configuration
 
