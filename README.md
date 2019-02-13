@@ -9,7 +9,7 @@ This service will index transactions, provide a REST API to query all transactio
 
 ## REST API
 
-### `GET /v1/addresses/:address/transactions[?from=<number>&to=<number>]`
+### `GET /addresses/:address/transactions[?from=<number>&to=<number>]`
 
 Will return a JSON array having all Ethereum transaction IDs related to the given address.
 Optionally specify `from` and `to` to limit the query to only that block range.
@@ -25,7 +25,7 @@ Optionally specify `from` and `to` to limit the query to only that block range.
 
 Transactions are returned in reverse-chronological order.
 
-### `GET /v1/blocks/best`
+### `GET /blocks/best`
 
 Will return an object containing information on the best indexed block.
 
@@ -39,7 +39,7 @@ Will return an object containing information on the best indexed block.
 
 ## Events interface
 
-The Socket.IO events interface is available at the following route: `/v2`.
+The Socket.IO events interface is available at the following route: `/v1`.
 
 ### `subscribe`
 
@@ -50,7 +50,10 @@ Subscription message:
 ```json
 {
   "event": "subscribe",
-  "data": ["0xb1d4c88a30a392aee6859e6f62738230db0c2d93"]
+  "data": {
+    "type": "txs",
+    "addresses": ["0xb1d4c88a30a392aee6859e6f62738230db0c2d93"]
+  }
 }
 ```
 

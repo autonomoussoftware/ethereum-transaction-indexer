@@ -64,12 +64,10 @@ function subscribeToBlocks (socket, ack) {
 function attach (httpServer) {
   const io = new SocketIoServer(httpServer)
 
-  // Version 1 is deprecated
   const v1 = io.of('v1')
 
   v1.on('connection', function (socket) {
     logger.verbose('New connection', socket.id)
-    logger.warn('Client using deprecated v1 API')
 
     socket.on('subscribe', function (data = {}, ack = noop) {
       const { type } = data
@@ -92,24 +90,7 @@ function attach (httpServer) {
     })
   })
 
-  const v2 = io.of('v2')
-
-  v2.on('connection', function (socket) {
-    logger.verbose('New connection', socket.id)
-
-    socket.on('subscribe', function (addresses = [], ack = noop) {
-      subscribeToTransactions(socket, addresses, ack)
-    })
-
-    socket.on('disconnect', function (reason) {
-      logger.verbose('Connection closed', socket.id, reason)
-    })
-  })
-
-  return Promise.all([
-    attachToDb(v1),
-    attachToDb(v2)
-  ])
+  return attachToDb(v1)
 }
 
 // detach everything before shutting down
