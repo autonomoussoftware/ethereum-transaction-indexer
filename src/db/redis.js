@@ -12,6 +12,7 @@ function createClient (url, maxBlocks) {
   // Handle errors
   client.on('error', function (err) {
     logger.error('Redis error', err)
+    process.exit(1)
   })
 
   // Promisify client API
