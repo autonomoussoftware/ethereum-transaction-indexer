@@ -15,7 +15,7 @@ function attachToDb (io) {
     const [event, room] = channel.split(':')
     const [txid, status] = message.split(':')
 
-    const data = { txid, status }
+    const data = { type: 'eth', txid, status }
 
     logger.verbose('<<--', { room, event, data })
     io.to(room).emit(event, data)
