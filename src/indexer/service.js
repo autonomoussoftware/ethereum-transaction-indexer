@@ -1,34 +1,28 @@
 'use strict'
 
-const {
-  enode: { wsApiUrl },
-  pauseOnError,
-  subscriptionTimeout
-} = require('config')
+const { syncTimerSec } = require('config')
 const beforeExit = require('before-exit')
 const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')
-const util = require('util')
 
 const callsPerSec = require('../../lib/calls-per-sec')
 const debounce = require('../../lib/promise-lead-debounce')
 const inBN = require('../../lib/in-BN')
-const { subscribe } = require('../../lib/web3-block-subscribe')
 
 const logger = require('../logger')
+const web3 = require('../web3')
 
 const {
   closePubsub,
   getBestBlock,
   removeData,
+  setDb,
   storeBestBlock,
   storeData
 } = require('./storage')
+const db = require('../db')
 const calculateNextBlock = require('./next')
 const parseBlock = require('./parser')
-const web3 = require('./web3')
-
-const asyncSetTimeout = util.promisify(setTimeout)
 
 // index a single block and store indexed information
 const indexBlock = ({ number, hash }) =>
@@ -46,9 +40,14 @@ const lte = (a, b) => inBN('lte', a, b)
 // create a spied storeBestBlock to log calls rate
 const timedStoreBestBlock = callsPerSec(
   storeBestBlock,
-  function (speed, [{ number } = {}]) {
-    logger.info('Parsed block %s at %s [blocks/sec]', number, speed)
-  }
+  function (calls, [{ number } = {}]) {
+    logger.info(
+      'Parsed block %s at %s blocks/sec',
+      number,
+      Math.round(calls * 1000 / syncTimerSec)
+    )
+  },
+  syncTimerSec
 )
 
 // index a single block considering reorgs
@@ -111,22 +110,14 @@ const indexNextBlock = () =>
 function indexPastBlocks () {
   logger.info('Indexing past blocks')
   return indexNextBlock()
-    .catch(function (err) {
-      logger.warn('Could not index past block', err)
-      return asyncSetTimeout(pauseOnError)
-        .then(() => indexPastBlocks())
-    })
 }
 
 // start listening for new blocks and index on new incoming
 function indexIncomingBlocks () {
   logger.info('Starting block listener')
 
-  timedStoreBestBlock.stop()
-
-  subscribe({
-    url: wsApiUrl,
-    onData: debounce(function (header) {
+  web3.eth.subscribe('newBlockHeaders')
+    .on('data', debounce(function (header) {
       logger.info('New block received', header.number, header.hash)
 
       return web3.eth.getBlock(header.hash)
@@ -134,12 +125,10 @@ function indexIncomingBlocks () {
         .catch(function (err) {
           logger.warn('Could not index new block', err.message)
         })
-    }),
-    onError (err) {
+    }))
+    .on('error', function (err) {
       logger.warn('Subscription failure', err.message)
-    },
-    timeout: subscriptionTimeout
-  })
+    })
 }
 
 // start indexing
@@ -150,7 +139,10 @@ function start () {
     return closePubsub()
   })
 
-  return indexPastBlocks()
+  return db.init()
+    .then(setDb)
+    .then(indexPastBlocks)
+    .then(timedStoreBestBlock.stop)
     .then(indexIncomingBlocks)
 }
 

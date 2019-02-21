@@ -7,8 +7,10 @@ const restify = require('restify')
 
 const logger = require('../logger')
 
+const db = require('../db')
 const routes = require('./routes')
 const events = require('./events')
+const queries = require('./db-queries')
 
 const server = restify.createServer({ socketio: true })
 
@@ -42,23 +44,27 @@ function start () {
     return callback()
   })
 
-  server.listen(port, function () {
-    logger.info(`API started on port ${port}`)
+  return db.init()
+    .then(queries.setDb)
+    .then(function () {
+      server.listen(port, function () {
+        logger.info(`API started on port ${port}`)
 
-    events.attach(server)
-      .then(function () {
-        logger.info('Events interfase is up')
-      })
-      .catch(function (err) {
-        logger.error('Could not start events interface', err.message)
-
-        // Should not continue if unable to start the events interface
-        return stop()
+        events.attach(server)
           .then(function () {
-            process.exit(1)
+            logger.info('Events interfase is up')
+          })
+          .catch(function (err) {
+            logger.error('Could not start events interface', err.message)
+
+            // Should not continue if unable to start the events interface
+            return stop()
+              .then(function () {
+                process.exit(1)
+              })
           })
       })
-  })
+    })
 }
 
 module.exports = { start }

@@ -3,7 +3,6 @@
     "node": true
   },
   "extends": [
-    "bloq",
-    "bloq/experimental"
+    "bloq"
   ]
 }

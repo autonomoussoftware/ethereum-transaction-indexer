@@ -1,0 +1,54 @@
+patch-package
+--- a/node_modules/web3-core-requestmanager/src/index.js
++++ b/node_modules/web3-core-requestmanager/src/index.js
+@@ -103,13 +103,16 @@ RequestManager.prototype.setProvider = function (p, net) {
+                 _this.subscriptions[result.params.subscription].callback(null, result.params.result);
+             }
+         });
+-        // TODO add error, end, timeout, connect??
+-        // this.provider.on('error', function requestManagerNotification(result){
+-        //     Object.keys(_this.subscriptions).forEach(function(id){
+-        //         if(_this.subscriptions[id].callback)
+-        //             _this.subscriptions[id].callback(err);
+-        //     });
+-        // }
++
++        // notify all subscriptions about the error condition
++        this.provider.on('error', function (event) {
++            Object.keys(_this.subscriptions).forEach(function(id){
++                if(_this.subscriptions[id] && _this.subscriptions[id].callback)
++                _this.subscriptions[id].callback(event.code || new Error('Provider error'));
++            });
++        });
++
++        // TODO add end, timeout, connect??
+     }
+ };
+ 
+@@ -205,17 +208,20 @@ RequestManager.prototype.addSubscription = function (id, name, type, callback) {
+  * @param {Function} callback   fired once the subscription is removed
+  */
+ RequestManager.prototype.removeSubscription = function (id, callback) {
+-    var _this = this;
+-
+     if(this.subscriptions[id]) {
++        var type = this.subscriptions[id].type;
++
++        // remove subscription first to avoid reentry
++        delete this.subscriptions[id];
+ 
++        // then, try to actually unsubscribe
+         this.send({
+-            method: this.subscriptions[id].type + '_unsubscribe',
++            method: type + '_unsubscribe',
+             params: [id]
+         }, callback);
+-
+-        // remove subscription
+-        delete _this.subscriptions[id];
++    } else if (typeof callback === 'function') {
++        // call the callback if the subscription was already removed
++        callback(null);
+     }
+ };
+ 

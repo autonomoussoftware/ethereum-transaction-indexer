@@ -1,47 +1,27 @@
 'use strict'
 
-const db = require('../db')
+const { pubsub, redis: { url } } = require('config')
+
 const logger = require('../logger')
+const getPubsSub = require('../pubsub')
 
-const sub = db.pubsub()
-
-// DB events parsers
-const patterns = {
-  'tx:*' (channel, message) {
-    const [event, address] = channel.split(':')
-    const [type, txid, status, meta] = message.split(':')
-
-    return {
-      room: address,
-      event,
-      data: { type, txid, status, meta }
-    }
-  },
-  'block' (channel, message) {
-    const [hash, number] = message.split(':')
-
-    return {
-      room: 'block',
-      event: 'block',
-      data: { hash, number: Number.parseInt(number, 10) }
-    }
-  }
-}
+const sub = getPubsSub(pubsub === 'redis' && url)
 
 // attach to DB events and emit to subscribers
 function attachToDb (io) {
   sub.on('pmessage', function (pattern, channel, message) {
     logger.verbose('Received new event', pattern, channel)
 
-    const { room, event, data } = patterns[pattern](channel, message)
+    const [event, room] = channel.split(':')
+    const [txid, status] = message.split(':')
+
+    const data = { type: 'eth', txid, status }
 
     logger.verbose('<<--', { room, event, data })
     io.to(room).emit(event, data)
   })
 
-  return Promise.all(
-    Object.keys(patterns).map(pattern => sub.psubscribe(pattern))
-  )
+  return sub.psubscribe('tx:*')
 }
 
 // detach from DB events

@@ -1,0 +1,6 @@
+.eslintcache
+.nyc_output
+config/local.json
+coverage
+node_modules
+npm-debug.log

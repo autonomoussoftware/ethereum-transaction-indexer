@@ -1,23 +1,8 @@
 'use strict'
 
-const { logger: loggerConf } = require('config')
-const winston = require('winston')
-require('winston-papertrail')
-require('winston-sentry-transport')
+const config = require('config')
+const createLogger = require('@bloq/service-logger')
 
-const reqProps = {
-  Sentry: 'dns',
-  Papertrail: 'host'
-}
-
-const transports = Object.keys(loggerConf)
-  .map(t =>
-    loggerConf[t] &&
-    (reqProps[t] ? loggerConf[t][reqProps[t]] : true) &&
-    new winston.transports[t](loggerConf[t])
-  )
-  .filter(t => !!t)
-
-const logger = new winston.Logger({ transports })
+const logger = createLogger(config.logger)
 
 module.exports = logger

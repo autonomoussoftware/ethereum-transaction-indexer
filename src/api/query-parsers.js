@@ -2,7 +2,7 @@
 
 const { identity } = require('lodash/fp')
 const { isArray, mergeWith, negate, overEvery, some } = require('lodash')
-const { isAddress, isHexStrict } = require('web3-utils')
+const { isAddress, isHexStrict } = require('web3').utils
 
 // check if the list only contains Ethereum addresses
 const evaluateAddresses = (prop, list) => ({

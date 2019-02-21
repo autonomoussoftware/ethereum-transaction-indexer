@@ -1,7 +1,7 @@
 'use strict'
 
 const { events: { maxAddresses } } = require('config')
-const { isAddress, isHexStrict } = require('web3-utils')
+const { isAddress, isHexStrict } = require('web3').utils
 const { isArray, negate, noop, overEvery, some } = require('lodash')
 const { toLower } = require('lodash')
 const SocketIoServer = require('socket.io')
@@ -37,7 +37,7 @@ function subscribeToTransactions (socket, addresses, ack) {
       return
     }
 
-    logger.info('Subscription to txs processed', addresses)
+    logger.verbose('Subscription to txs processed', addresses)
 
     ack()
   })
@@ -62,9 +62,11 @@ function subscribeToBlocks (socket, ack) {
 
 // create a Socket.IO server and attach it to an HTTP server
 function attach (httpServer) {
-  const io = new SocketIoServer(httpServer).of('v1')
+  const io = new SocketIoServer(httpServer)
 
-  io.on('connection', function (socket) {
+  const v1 = io.of('v1')
+
+  v1.on('connection', function (socket) {
     logger.verbose('New connection', socket.id)
 
     socket.on('subscribe', function (data = {}, ack = noop) {
@@ -78,20 +80,17 @@ function attach (httpServer) {
 
       if (type === 'txs') {
         subscribeToTransactions(socket, data.addresses, ack)
-        return
-      }
-
-      if (type === 'blocks') {
+      } else if (type === 'blocks') {
         subscribeToBlocks(socket, ack)
       }
     })
 
     socket.on('disconnect', function (reason) {
-      logger.verbose('Connection closed', reason)
+      logger.verbose('Connection closed', socket.id, reason)
     })
   })
 
-  return attachToDb(io)
+  return attachToDb(v1)
 }
 
 // detach everything before shutting down
