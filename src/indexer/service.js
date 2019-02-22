@@ -1,13 +1,12 @@
 'use strict'
 
+const { spy } = require('sinon')
 const { syncTimerSec } = require('config')
 const beforeExit = require('before-exit')
 const memoize = require('p-memoize')
 const promiseAllProps = require('promise-all-props')
 
-const callsPerSec = require('../../lib/calls-per-sec')
-const debounce = require('../../lib/promise-lead-debounce')
-const inBN = require('../../lib/in-BN')
+const notIfBusy = require('promise-not-if-busy')
 
 const logger = require('../logger')
 const web3 = require('../web3')
@@ -35,20 +34,10 @@ const previousBlock = ({ hash }) =>
     .then(({ parentHash }) => web3.eth.getBlock(parentHash))
 
 // check if a is less that or equal to b
-const lte = (a, b) => inBN('lte', a, b)
+const { BN } = web3.utils
+const lte = (a, b) => new BN(a).lte(new BN(b))
 
-// create a spied storeBestBlock to log calls rate
-const timedStoreBestBlock = callsPerSec(
-  storeBestBlock,
-  function (calls, [{ number } = {}]) {
-    logger.info(
-      'Parsed block %s at %s blocks/sec',
-      number,
-      Math.round(calls * 1000 / syncTimerSec)
-    )
-  },
-  syncTimerSec
-)
+const spiedStoreBestBlock = spy(storeBestBlock)
 
 // index a single block considering reorgs
 function indexBlocks (latest) {
@@ -77,7 +66,7 @@ function indexBlocks (latest) {
           return removeData(best)
             .then(() => previousBlock(best))
         })
-        .then(timedStoreBestBlock)
+        .then(spiedStoreBestBlock)
         .then(() => indexBlocks(latest))
     })
 }
@@ -109,7 +98,22 @@ const indexNextBlock = () =>
 // index all existing blocks in the blockchain from best to current
 function indexPastBlocks () {
   logger.info('Indexing past blocks')
+  const interval = setInterval(function () {
+    const calls = spiedStoreBestBlock.callCount
+    if (calls) {
+      const { number } = spiedStoreBestBlock.lastCall.args[0]
+      logger.info(
+        'Parsed block %s at %s blocks/sec',
+        number,
+        Math.round(calls * 1000 / syncTimerSec)
+      )
+    }
+    spiedStoreBestBlock.resetHistory()
+  }, syncTimerSec)
   return indexNextBlock()
+    .then(function () {
+      clearInterval(interval)
+    })
 }
 
 // start listening for new blocks and index on new incoming
@@ -117,7 +121,7 @@ function indexIncomingBlocks () {
   logger.info('Starting block listener')
 
   web3.eth.subscribe('newBlockHeaders')
-    .on('data', debounce(function (header) {
+    .on('data', notIfBusy(function (header) {
       logger.info('New block received', header.number, header.hash)
 
       return web3.eth.getBlock(header.hash)
@@ -142,7 +146,6 @@ function start () {
   return db.init()
     .then(setDb)
     .then(indexPastBlocks)
-    .then(timedStoreBestBlock.stop)
     .then(indexIncomingBlocks)
 }
 
