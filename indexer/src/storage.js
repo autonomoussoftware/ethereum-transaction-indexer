@@ -9,11 +9,11 @@ function init (db, pub) {
   // Store ETH transaction data
   const storeEthTransactions = ({ number, data: { addresses, txid } }) =>
     Promise.all(addresses.map(function (addr) {
-      logger.verbose('Transaction indexed', addr, txid)
+      logger.verbose('Transaction indexed %s %s', addr, txid)
       return Promise.all([
         db.setAddressTransaction({ addr, number, txid })
           .then(function () {
-            logger.verbose('Publishing tx message', addr, txid)
+            logger.verbose('Publishing tx confirmed %s %s', addr, txid)
             return pub.publish(`tx:${addr}`, `${txid}:confirmed`)
           }),
         db.setBlockAddress({ number, addr })
@@ -31,10 +31,10 @@ function init (db, pub) {
         addresses.map(addr => db
           .getAddressTransactions({ addr, min: number, max: number })
           .then(txids => Promise.all(txids.map(function (txid) {
-            logger.verbose('Transaction unconfirmed', addr, txid)
+            logger.verbose('Transaction removed %s %s', addr, txid)
             return db.deleteAddressTransaction({ addr, txid })
               .then(function () {
-                logger.verbose('Publishing tx unconfirmed message', addr, txid)
+                logger.verbose('Publishing tx unconfirmed %s %s', addr, txid)
                 return pub.publish(`tx:${addr}`, `${txid}:unconfirmed`)
               })
           })))
@@ -56,7 +56,7 @@ function init (db, pub) {
 
   // Update the record of the best indexed block
   function storeBestBlock ({ number, hash, totalDifficulty }) {
-    logger.info('New best block', number, hash)
+    logger.info('New best block %d %s', number, hash)
     return db.setBestBlock({ number, hash, totalDifficulty })
   }
 

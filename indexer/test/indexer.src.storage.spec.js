@@ -1,7 +1,5 @@
 'use strict'
 
-const proxyquire = require('proxyquire').noCallThru()
-
 require('chai').should()
 
 describe('Parser storage', function () {

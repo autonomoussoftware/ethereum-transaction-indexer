@@ -17,6 +17,6 @@ service.start(config)
   })
 
 beforeExit.do(function (signal) {
-  logger.error('Shutting down indexer on signal', signal)
+  logger.error('Shutting down indexer on signal %s', signal)
   return service.stop()
 })

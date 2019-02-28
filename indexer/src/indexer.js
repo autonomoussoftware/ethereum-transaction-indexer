@@ -19,7 +19,7 @@ function start (config, web3, storage) {
     storeBestBlock,
     storeData
   } = storage
-  const { blocksCacheAge, syncTimerSec } = config
+  const { blocksCacheAge, indexingConcurrency, syncTimerSec } = config
 
   // Optimized version of `getBlock()`
   const getBlock = memoize(web3.eth.getBlock, { maxAge: blocksCacheAge })
@@ -53,36 +53,59 @@ function start (config, web3, storage) {
   // Index as if the latest block is the given block number
   const indexBlockNumber = number =>
     getBlock(number)
-      .then(header => indexBlock(header)
-        .then(() => spiedStoreBestBlock(header))
-      )
+      .then(header => indexBlock(header))
 
-  // Recursively index the next block on top of best
-  // TODO parallelize blocks processing in batches
-  const indexNextToBestBlock = () =>
-    promiseAllProps({
+  // Adaptative batch length for past blocks indexing
+  let batchLenght = indexingConcurrency
+
+  // Recursively index the next blocks on top of best
+  function indexNextToBestBlock () {
+    logger.debug('Indexing batch of %d blocks', batchLenght)
+
+    return promiseAllProps({
       latest: getBlock('latest'),
       best: getBestBlock()
     })
-      .then(({ latest, best }) =>
-        best.hash === latest.hash ||
-        indexBlockNumber(best.number + 1)
-          .then(indexNextToBestBlock)
-      )
+      .then(function ({ latest, best }) {
+        if (best.number >= latest.number) {
+          return Promise.resolve()
+        }
+
+        logger.info('Sync progress %d', (best.number / latest.number).toFixed(6))
+
+        const batch = new Array(batchLenght)
+          .fill()
+          .map((_, i) => best.number + 1 + i)
+          .filter(number => number <= latest.number)
+          .map(number => getBlock(number)
+            .then(header => indexBlockNumber(number)
+              .then(() => header)
+            )
+          )
+
+        return Promise.all(batch)
+          .then(headers => spiedStoreBestBlock(headers[headers.length - 1]))
+          .then(() => indexNextToBestBlock())
+      })
+  }
 
   // Index all existing blocks in the blockchain from best to latest
   function indexPastBlocks () {
     logger.info('Indexing past blocks')
 
+    // Last batch indexing speed in blocks/sec
+    let lastSpeed = 0
+
     const interval = setInterval(function () {
       const calls = spiedStoreBestBlock.callCount
       if (calls) {
         const { number } = spiedStoreBestBlock.lastCall.args[0]
-        logger.info(
-          'Parsed block %s at %s blocks/sec',
-          number,
-          Math.round(calls * 1000 / syncTimerSec)
-        )
+
+        const speed = Math.round(calls * batchLenght * 1000 / syncTimerSec)
+        batchLenght = Math.round(batchLenght * (speed > lastSpeed ? 1.3 : 0.9))
+        lastSpeed = Math.round(0.6 * lastSpeed + 0.4 * speed)
+
+        logger.info('Parsed block %d at %d blocks/sec', number, speed)
       }
       spiedStoreBestBlock.resetHistory()
     }, syncTimerSec)
@@ -98,26 +121,27 @@ function start (config, web3, storage) {
 
   // Import up to the incoming block, one at a time considering reorgs
   function indexBlocks (latest) {
-    logger.verbose('Indexing incoming blocks', latest.number, latest.hash)
+    logger.verbose('Indexing incoming blocks %d %s', latest.number, latest.hash)
     return getBestBlock()
       .then(function (best) {
         return calculateNextBlock(best, latest)
           .then(function ({ next, undo }) {
             if (next) {
               // going up!
-              logger.verbose('Parsing block', next)
+              logger.verbose('Parsing block %s', next)
               return getBlock(next)
-                .then(nextBlock => indexBlock(nextBlock)
-                  .then(() => spiedStoreBestBlock(nextBlock))
+                .then(nextHeader => indexBlock(nextHeader)
+                  .then(() => spiedStoreBestBlock(nextHeader))
                 )
                 .then(() => indexBlocks(latest))
             }
 
             if (undo) {
               // need to go back :(
-              logger.warn('Removing reorg\'d block', undo)
-              return removeBlock(best.hash)
-                .then(() => getBlock(best.parentHash))
+              logger.warn('Removing reorg\'d block %s', undo)
+              return removeBlock(undo)
+                .then(() => getBlock(undo))
+                .then(bestHeader => getBlock(bestHeader.parentHash))
                 .then(spiedStoreBestBlock)
                 .then(() => indexBlocks(latest))
             }
@@ -137,16 +161,16 @@ function start (config, web3, storage) {
 
     web3.eth.subscribe('newBlockHeaders')
       .on('data', function (header) {
-        logger.info('New block received', header.number, header.hash)
+        logger.info('New block received %d %s', header.number, header.hash)
 
         tryIndexBlocks(header)
           .catch(function (err) {
-            logger.warn('Could not index new block', err.message)
+            logger.warn('Could not index new block %s', err.message)
             logger.debug(err.stack)
           })
       })
       .on('error', function (err) {
-        logger.warn('Subscription failure', err.message)
+        logger.warn('Subscription failure %s', err.message)
       })
   }
 

@@ -1,4 +1,5 @@
 {
+  "blocksCacheAge": 2000,
   "dbEngine": "redis",
   "enode": {
     "wsPath": "ws://localhost:8546"
@@ -6,6 +7,7 @@
   "events": {
     "maxAddresses": 10
   },
+  "indexingConcurrency": 20,
   "logger": {
     "Console": {
       "colorize": true,
