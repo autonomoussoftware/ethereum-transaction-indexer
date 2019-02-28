@@ -14,11 +14,6 @@ const start = config =>
       startIndexer(config, getWeb3(config), storage.init(db, pub))
     )
 
-// Gracefully stop
-// TODO close db, pubsub and web3 connections
-const stop = () => undefined
-
 module.exports = {
-  start,
-  stop
+  start
 }
