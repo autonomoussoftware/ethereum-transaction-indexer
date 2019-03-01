@@ -6,7 +6,7 @@
   "main": "server.js",
   "repository": "autonomoussoftware/ethereum-transaction-indexer",
   "scripts": {
-    "api": "node src/api/index.js",
+    "api": "node rest-api/server.js",
     "docker:build": "docker build -t ethereum-transaction-indexer .",
     "check": "dependency-check . && dependency-check . --unused --no-dev --ignore-module winston --ignore-module winston-papertrail --ignore-module winston-sentry-transport --ignore-module websocket-reconnector",
     "check:outdated": "npm-check -p -i husky -i eslint-config-plugin:*",
