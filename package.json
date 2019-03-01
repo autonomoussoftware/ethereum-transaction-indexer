@@ -25,7 +25,6 @@
     "config": "1.30.0",
     "lodash": "4.17.11",
     "mongodb": "3.1.13",
-    "newrelic": "4.9.0",
     "p-memoize": "1.0.0",
     "promise-all-props": "1.0.1",
     "promise-not-if-busy": "1.0.0",
