@@ -28,7 +28,6 @@
     "url": "mongodb://localhost:27017",
     "dbName": "indexer"
   },
-  "newRelic": {},
   "port": 3005,
   "pubsub": "redis",
   "redis": {

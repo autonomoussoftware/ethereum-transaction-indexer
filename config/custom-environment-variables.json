@@ -19,11 +19,6 @@
     "url": "MONGO_URL",
     "dbName": "MONGO_DB_NAME"
   },
-  "newRelic": {
-    "appName": "NEW_RELIC_APP_NAME",
-    "licenseKey": "NEW_RELIC_LICENSE_KEY",
-    "loggingLevel": "NEW_RELIC_LOGGING_LEVEL"
-  },
   "port": "PORT",
   "pubsub": "PUBSUB",
   "redis": {
