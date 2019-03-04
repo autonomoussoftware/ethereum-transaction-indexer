@@ -65,20 +65,20 @@ function start (config, web3, storage) {
     logger.debug('Indexing batch of %d blocks', batchLenght)
 
     return promiseAllProps({
-      latest: getBlock('latest'),
-      best: getBestBlock()
+      latest: getBlock('latest').then(get('number')),
+      best: getBestBlock().then(get('number'))
     })
       .then(function ({ latest, best }) {
-        if (best.number >= latest.number) {
+        if (best >= latest) {
           return Promise.resolve()
         }
 
-        logger.info('Sync progress %d', (best.number / latest.number).toFixed(6))
+        logger.info('Sync progress %d', (best / latest).toFixed(6))
 
         const batch = new Array(batchLenght)
           .fill()
-          .map((_, i) => best.number + 1 + i)
-          .filter(number => number <= latest.number)
+          .map((_, i) => best + 1 + i)
+          .filter(number => number <= latest)
           .map(number => getBlock(number)
             .then(header => indexBlockNumber(number)
               .then(() => header)
