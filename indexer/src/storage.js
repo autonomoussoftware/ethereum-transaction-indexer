@@ -1,6 +1,6 @@
 'use strict'
 
-const logger = require('../../shared/logger')
+const logger = require('../../shared/src/logger')
 
 // eslint-disable-next-line max-len
 const NULL_TX_ID = '0x0000000000000000000000000000000000000000000000000000000000000000'

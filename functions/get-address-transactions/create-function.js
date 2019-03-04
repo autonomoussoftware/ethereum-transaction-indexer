@@ -2,7 +2,7 @@
 
 const { BadRequestError } = require('restify-errors')
 
-const logger = require('../../../shared/logger')
+const logger = require('../../shared/src/logger')
 
 function parseCardinal (str) {
   if (!/^[0-9]*$/.test(str)) {
@@ -14,7 +14,7 @@ function parseCardinal (str) {
 function createGetAddressTransactions (db) {
 // return all ETH transactions of an address
   function getAddressTransactions (req, res, next) {
-    logger.verbose('-->', req.url)
+    logger.verbose('--> %s', req.url)
 
     const address = req.params.address.toLowerCase()
     const { from, to } = req.query
@@ -36,7 +36,7 @@ function createGetAddressTransactions (db) {
 
     db.getAddressTransactions({ address, from: _from, to: _to })
       .then(function (transactions) {
-        logger.verbose(`<-- ${address} txs: ${transactions.length}`)
+        logger.verbose('<-- %s txs: %d', address, transactions.length)
         res.json(transactions.reverse())
         next()
       })

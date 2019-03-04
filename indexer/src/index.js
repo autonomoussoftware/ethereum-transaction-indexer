@@ -1,7 +1,7 @@
 'use strict'
 
-const getWeb3 = require('../../shared/web3')
-const createDbClient = require('../../shared/db')
+const getWeb3 = require('../../shared/src/web3')
+const createDbClient = require('../../shared/src/db')
 
 const storage = require('./storage')
 const startIndexer = require('./indexer')

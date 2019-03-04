@@ -2,8 +2,7 @@
 
 const Router = require('restify-router').Router
 
-const createGetBestBlock = require('../functions/get-best-block').create
-const createGetAddrTxs = require('../functions/get-address-transactions').create
+const { createGetBestBlock, createGetAddrTxs } = require('../../functions')
 
 const ETH_ADDRESS = '^0x[0-9a-fA-F]{40}$'
 

@@ -1,12 +1,14 @@
 'use strict'
 
+const { BN } = require('web3-utils')
+const { get } = require('lodash/fp')
 const { toLower } = require('lodash')
 const { spy } = require('sinon')
 const memoize = require('p-memoize')
 const notIfBusy = require('promise-not-if-busy')
 const promiseAllProps = require('promise-all-props')
 
-const logger = require('../../shared/logger')
+const logger = require('../../shared/src/logger')
 
 const createNext = require('./next')
 
@@ -117,7 +119,7 @@ function start (config, web3, storage) {
   }
 
   // Calculate the next block to process
-  const calculateNextBlock = createNext(getBlock, web3.utils.BN)
+  const calculateNextBlock = createNext(getBlock, BN)
 
   // Import up to the incoming block, one at a time considering reorgs
   function indexBlocks (latest) {

@@ -3,7 +3,7 @@
 const beforeExit = require('before-exit')
 const config = require('config')
 
-const logger = require('../shared/logger')
+const logger = require('../shared/src/logger')
 const service = require('./src')
 
 logger.info('Starting up...')

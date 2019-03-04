@@ -2,7 +2,7 @@
 
 require('chai').should()
 
-const getPubSub = require('../shared/pubsub')
+const getPubSub = require('../src/pubsub')
 
 describe('PubSub', function () {
   it('should subscribe, publish and receive a tx message', function (done) {

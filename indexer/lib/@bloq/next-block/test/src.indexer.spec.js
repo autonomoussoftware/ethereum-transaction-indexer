@@ -2,7 +2,7 @@
 
 require('chai').should()
 
-const createCalculateNextBlock = require('../src/next/nextBlock')
+const createCalculateNextBlock = require('../src')
 
 /**
  * The blocks tree has the following shape:
