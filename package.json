@@ -16,7 +16,6 @@
     "precommit": "npm run lint",
     "prepare": "patch-package",
     "prepush": "npm run check && npm run test",
-    "start": "PUBSUB='in-process' node server.js",
     "test": "mocha"
   },
   "dependencies": {

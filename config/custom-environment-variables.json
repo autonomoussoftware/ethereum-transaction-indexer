@@ -20,7 +20,6 @@
     "dbName": "MONGO_DB_NAME"
   },
   "port": "PORT",
-  "pubsub": "PUBSUB",
   "redis": {
     "url": "REDIS_URL"
   },
