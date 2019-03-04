@@ -3,6 +3,10 @@
     "node": true
   },
   "extends": [
-    "bloq"
+    "bloq",
+    "plugin:require-path-exists/recommended"
+  ],
+  "plugins": [
+    "require-path-exists"
   ]
 }
