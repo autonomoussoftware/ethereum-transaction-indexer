@@ -16,7 +16,7 @@
     "precommit": "npm run lint",
     "prepare": "patch-package",
     "prepush": "npm run check && npm run test",
-    "test": "mocha"
+    "test": "mocha indexer/lib/@bloq/next-block/test indexer/test"
   },
   "dependencies": {
     "@bloq/service-logger": "git://github.com/bloq/service-logger.git",
