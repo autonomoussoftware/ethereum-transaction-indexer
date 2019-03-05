@@ -3,19 +3,13 @@
 const beforeExit = require('before-exit')
 const config = require('config')
 
-const events = require('./events')
-const indexer = require('./indexer/src')
-const logger = require('./shared/src/logger')
-const restApi = require('./rest-api/src')
+const logger = require('../shared/src/logger')
+const service = require('./src')
 
 logger.info('Starting up...')
 logger.debug('Startup configuration: %j', config)
 
-Promise.all([
-  indexer.start(config),
-  restApi.start(config, { socketio: true })
-    .then(server => events.start(config, server))
-])
+service.start(config)
   .catch(function (err) {
     logger.error('Terminating on error: %s', err.message)
     logger.debug(err.stack)
