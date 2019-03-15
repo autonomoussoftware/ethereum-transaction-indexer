@@ -16,7 +16,10 @@ describe('Parser storage', function () {
 
     const notifications = []
 
+    const dbnum = '0'
+
     const pubSubStub = {
+      dbnum,
       publish (event, data) {
         notifications.push({ event, data })
       }
@@ -56,8 +59,8 @@ describe('Parser storage', function () {
 
         notifications.should.have.lengthOf(2)
         notifications.should.have.deep.members([
-          { event: 'tx:0x31', data: '0x0431:unconfirmed' },
-          { event: 'tx:0x40', data: '0x0440:unconfirmed' }
+          { event: `${dbnum}:tx:0x31`, data: '0x0431:unconfirmed' },
+          { event: `${dbnum}:tx:0x40`, data: '0x0440:unconfirmed' }
         ])
       })
   })
