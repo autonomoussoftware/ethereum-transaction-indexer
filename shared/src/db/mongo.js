@@ -1,5 +1,6 @@
 'use strict'
 
+const beforeExit = require('before-exit')
 const logger = require('../logger')
 const MongoClient = require('mongodb').MongoClient
 
@@ -10,6 +11,10 @@ const createClientFor = function (url) {
   // Handle errors
   db.on('error', function (err) {
     logger.error('Mongo error', err)
+
+    const meta = { inner: err, exitCode: 1 }
+    const error = Object.assign(new Error('Mongo error'), meta)
+    beforeExit(() => Promise.reject(error))
 
     // Can't continue if there is a database error
     process.kill(process.pid, 'SIGINT')

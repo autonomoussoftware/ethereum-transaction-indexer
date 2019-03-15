@@ -1,5 +1,6 @@
 'use strict'
 
+const beforeExit = require('before-exit')
 const redis = require('redis')
 const url = require('url')
 const util = require('util')
@@ -23,7 +24,14 @@ function createRedisPubSub (redisUrl) {
   const client = redis.createClient(redisUrl)
 
   client.on('error', function (err) {
-    logger.error('Redis pubsub error', err)
+    logger.error('Redis error', err)
+
+    const meta = { inner: err, exitCode: 1 }
+    const error = Object.assign(new Error('Redis error'), meta)
+    beforeExit(() => Promise.reject(error))
+
+    // Can't continue if there is a database error
+    process.kill(process.pid, 'SIGINT')
   })
 
   return {
