@@ -6,6 +6,8 @@ const logger = require('../../shared/src/logger')
 const NULL_TX_ID = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 function init (db, pub) {
+  const { dbnum } = pub
+
   // Store ETH transaction data
   const storeEthTransactions = ({ number, data: { addresses, txid } }) =>
     Promise.all(addresses.map(function (addr) {
@@ -14,7 +16,7 @@ function init (db, pub) {
         db.setAddressTransaction({ addr, number, txid })
           .then(function () {
             logger.verbose('Publishing tx confirmed %s %s', addr, txid)
-            return pub.publish(`tx:${addr}`, `${txid}:confirmed`)
+            return pub.publish(`${dbnum}:tx:${addr}`, `${txid}:confirmed`)
           }),
         db.setBlockAddress({ number, addr })
       ])
@@ -35,7 +37,7 @@ function init (db, pub) {
             return db.deleteAddressTransaction({ addr, txid })
               .then(function () {
                 logger.verbose('Publishing tx unconfirmed %s %s', addr, txid)
-                return pub.publish(`tx:${addr}`, `${txid}:unconfirmed`)
+                return pub.publish(`${dbnum}:tx:${addr}`, `${txid}:unconfirmed`)
               })
           })))
         )

@@ -8,5 +8,8 @@
   ],
   "plugins": [
     "require-path-exists"
-  ]
+  ],
+  "rules": {
+    "promise/no-promise-in-callback": "off"
+  }
 }
