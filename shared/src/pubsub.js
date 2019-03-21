@@ -28,7 +28,7 @@ function createRedisPubSub (redisUrl) {
 
     const meta = { inner: err, exitCode: 1 }
     const error = Object.assign(new Error('Redis error'), meta)
-    beforeExit(() => Promise.reject(error))
+    beforeExit.do(() => Promise.reject(error))
 
     // Can't continue if there is a database error
     process.kill(process.pid, 'SIGINT')
