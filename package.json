@@ -27,6 +27,7 @@
     "p-memoize": "1.0.0",
     "promise-all-props": "1.0.1",
     "promise-not-if-busy": "1.0.0",
+    "quick-lru": "3.0.0",
     "redis": "2.8.0",
     "restify": "7.2.1",
     "restify-errors": "6.1.1",
