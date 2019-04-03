@@ -7,6 +7,7 @@ const { spy } = require('sinon')
 const memoize = require('p-memoize')
 const notIfBusy = require('promise-not-if-busy')
 const promiseAllProps = require('promise-all-props')
+const QuickLRU = require('quick-lru')
 
 const logger = require('../../shared/src/logger')
 
@@ -21,10 +22,18 @@ function start (config, web3, storage) {
     storeBestBlock,
     storeData
   } = storage
-  const { blocksCacheAge, indexingConcurrency, syncTimerSec } = config
+  const {
+    blocksCacheAge,
+    blocksCacheSize,
+    indexingConcurrency,
+    syncTimerSec
+  } = config
 
   // Optimized version of `getBlock()`
-  const getBlock = memoize(web3.eth.getBlock, { maxAge: blocksCacheAge })
+  const getBlock = memoize(
+    web3.eth.getBlock,
+    { cache: new QuickLRU({ maxSize: blocksCacheSize }), maxAge: blocksCacheAge }
+  )
 
   // Parse a single transaction
   const parseEthTransaction = ({ hash, from, to }) => ({
@@ -76,7 +85,7 @@ function start (config, web3, storage) {
         logger.info('Sync progress %d', (best / latest).toFixed(6))
 
         const batch = new Array(batchLenght)
-          .fill()
+          .fill(null)
           .map((_, i) => best + 1 + i)
           .filter(number => number <= latest)
           .map(number => getBlock(number)

@@ -1,5 +1,6 @@
 {
   "blocksCacheAge": 2000,
+  "blocksCacheSize": 200,
   "dbEngine": "redis",
   "enode": {
     "wsPath": "ws://localhost:8546"
