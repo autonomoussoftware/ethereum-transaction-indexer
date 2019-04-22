@@ -5,8 +5,12 @@ const logger = require('../logger')
 const MongoClient = require('mongodb').MongoClient
 
 // Create a client that connects to the provided URL
-const createClientFor = function (url) {
-  const db = MongoClient.connect(url, { useNewUrlParser: true })
+const createClientFor = url =>
+  MongoClient.connect(url, { useNewUrlParser: true })
+
+// Initialize all capped collections
+const initCollections = dbName => function (client) {
+  const db = client.db(dbName)
 
   // Handle errors
   db.on('error', function (err) {
@@ -20,14 +24,10 @@ const createClientFor = function (url) {
     process.kill(process.pid, 'SIGINT')
   })
 
-  return db
-}
-
-// Initialize all capped collections
-const initCollections = dbName => function (client) {
-  const db = client.db(dbName)
-
   return db.createCollection('bestBlock', { capped: true, size: 1024, max: 1 })
+    .catch(function (err) {
+      logger.warn('Could not create bestBlock collection: %s', err.message)
+    })
     .then(() => client)
 }
 
