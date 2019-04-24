@@ -106,16 +106,23 @@ function start (config, web3, storage) {
 
     // Last batch indexing speed in blocks/sec
     let lastSpeed = 0
+    let lastTime = Date.now()
 
     const interval = setInterval(function () {
       const calls = spiedStoreBestBlock.callCount
       if (calls) {
         const { number } = spiedStoreBestBlock.lastCall.args[0]
 
-        const speed = Math.round(calls * batchLenght * 1000 / syncTimerSec)
+        const now = Date.now()
+        const elapsedTime = (now - lastTime) / 1000
+        lastTime = now
+
+        const speed = Math.round(calls * batchLenght / elapsedTime)
+
         const batchFactor = speed > lastSpeed ? 1.1 : 0.95
         batchLenght = Math.round(batchLenght * batchFactor)
         batchLenght = Math.max(Math.min(batchLenght, 500), 10)
+
         lastSpeed = Math.round(0.9 * lastSpeed + 0.1 * speed)
 
         logger.info('Parsed block %d at %d blocks/sec', number, speed)
