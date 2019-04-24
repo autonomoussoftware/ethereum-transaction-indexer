@@ -71,7 +71,7 @@ function start (config, web3, storage) {
 
   // Recursively index the next blocks on top of best
   function indexNextToBestBlock () {
-    logger.debug('Indexing batch of %d blocks', batchLenght)
+    logger.info('Indexing batch of %d blocks', batchLenght)
 
     return promiseAllProps({
       latest: getBlock('latest').then(get('number')),
