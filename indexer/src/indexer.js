@@ -115,7 +115,7 @@ function start (config, web3, storage) {
         const speed = Math.round(calls * batchLenght * 1000 / syncTimerSec)
         const batchFactor = speed > lastSpeed ? 1.1 : 0.95
         batchLenght = Math.round(batchLenght * batchFactor)
-        batchLenght = Math.max(Math.min(batchLenght, 1000), 10)
+        batchLenght = Math.max(Math.min(batchLenght, 500), 10)
         lastSpeed = Math.round(0.9 * lastSpeed + 0.1 * speed)
 
         logger.info('Parsed block %d at %d blocks/sec', number, speed)
