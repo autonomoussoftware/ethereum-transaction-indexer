@@ -10,6 +10,8 @@
     "require-path-exists"
   ],
   "rules": {
-    "promise/no-promise-in-callback": "off"
+    "promise/no-promise-in-callback": "off",
+    "promise/no-return-in-finally": "off",
+    "require-jsdoc": "off"
   }
 }
