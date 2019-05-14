@@ -63,12 +63,13 @@ const createApi = (dbName, maxBlocks, exposeClient) => function (client) {
       ),
 
     setAddressTransaction: ({ addr, number, txid }) =>
-      db.collection(addr)
-        .updateOne(
-          { number },
+      db.collection(addr).createIndex('number', { background: true })
+        .then(() => db.collection(addr)
+          .updateOne(
+            { number },
             { $addToSet: { txid } },
-          { upsert: true }
-        ),
+            { upsert: true }
+          )),
 
     getAddressTransactions: ({ addr, min, max }) =>
       db.collection(addr)
