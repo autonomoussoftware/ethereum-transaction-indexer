@@ -33,7 +33,7 @@ const initCollections = dbName => function (client) {
 }
 
 // Create the Mongo indexer-specific API
-const createApi = (dbName, maxBlocks) => function (client) {
+const createApi = (dbName, maxBlocks, exposeClient) => function (client) {
   const db = client.db(dbName)
 
   const api = {
@@ -78,16 +78,22 @@ const createApi = (dbName, maxBlocks) => function (client) {
 
     deleteAddressTransaction: ({ addr, txid }) =>
       db.collection(addr)
-        .deleteOne({ txid })
+        .deleteOne({ txid }),
+
+    disconnect: () => client.close()
+  }
+
+  if (exposeClient) {
+    api.client = client
   }
 
   return api
 }
 
 // Initialize the Mongo client, collections and return the indexer API object
-const createClient = ({ url, dbName }, maxBlocks) =>
+const createClient = ({ url, dbName }, maxBlocks, exposeClient) =>
   createClientFor(url)
     .then(initCollections(dbName))
-    .then(createApi(dbName, maxBlocks))
+    .then(createApi(dbName, maxBlocks, exposeClient))
 
 module.exports = createClient
