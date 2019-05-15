@@ -1,0 +1,21 @@
+patch-package
+--- a/node_modules/mongo-mock/lib/collection.js
++++ b/node_modules/mongo-mock/lib/collection.js
+@@ -73,12 +73,12 @@ module.exports = function Collection(db, state) {
+           state.persist();
+         }
+         callback(null, { result: { n: docsToRemove.length, ok: 1 }, deletedCount: docsToRemove.length, connection: db });
+-        if (typeof callback !== 'function') {
+-          return new Promise(function (resolve, reject) {
+-            callback = function (e, r) { e ? reject(e) : resolve(r) };
+-          })
+-        }
+       });
++      if (typeof callback !== 'function') {
++        return new Promise(function (resolve, reject) {
++          callback = function (e, r) { e ? reject(e) : resolve(r) };
++        })
++      }
+     },
+     deleteOne: function (filter, options, callback) {
+       callback = arguments[arguments.length - 1];

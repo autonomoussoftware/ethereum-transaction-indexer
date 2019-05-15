@@ -6,7 +6,7 @@ const util = require('util')
 
 const logger = require('../logger')
 
-function createClient ({ url }, maxBlocks) {
+function createClient ({ url }, maxBlocks, exposeClient) {
   // Create client
   const client = redis.createClient({ url, return_buffers: false })
 
@@ -32,7 +32,8 @@ function createClient ({ url }, maxBlocks) {
     'zrangebyscore',
     'zrem',
     'del',
-    'expire'
+    'expire',
+    'quit'
   ]
   const asyncClient = methods.reduce(function (ac, name) {
     ac[name] = util.promisify(client[name].bind(client))
@@ -67,7 +68,13 @@ function createClient ({ url }, maxBlocks) {
       asyncClient.zrangebyscore(`eth:${addr}`, min, max),
 
     deleteAddressTransaction: ({ addr, txid }) =>
-      asyncClient.zrem(`eth:${addr}`, txid)
+      asyncClient.zrem(`eth:${addr}`, txid),
+
+    disconnect: () => asyncClient.quit()
+  }
+
+  if (exposeClient) {
+    api.client = client
   }
 
   return Promise.resolve(api)

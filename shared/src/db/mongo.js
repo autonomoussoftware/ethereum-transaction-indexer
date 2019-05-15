@@ -1,5 +1,6 @@
 'use strict'
 
+const { flatten } = require('lodash')
 const beforeExit = require('before-exit')
 const logger = require('../logger')
 const MongoClient = require('mongodb').MongoClient
@@ -32,7 +33,7 @@ const initCollections = dbName => function (client) {
 }
 
 // Create the Mongo indexer-specific API
-const createApi = (dbName, maxBlocks) => function (client) {
+const createApi = (dbName, maxBlocks, exposeClient) => function (client) {
   const db = client.db(dbName)
 
   const api = {
@@ -62,31 +63,38 @@ const createApi = (dbName, maxBlocks) => function (client) {
       ),
 
     setAddressTransaction: ({ addr, number, txid }) =>
-      db.collection(addr)
-        .updateOne(
-          { number },
-          { $set: { txid } },
-          { upsert: true }
-        ),
+      db.collection(addr).createIndex('number', { background: true })
+        .then(() => db.collection(addr)
+          .updateOne(
+            { number },
+            { $addToSet: { txid } },
+            { upsert: true }
+          )),
 
     getAddressTransactions: ({ addr, min, max }) =>
       db.collection(addr)
         .find({ number: { $gte: min, $lte: max } })
         .toArray()
-        .then(blocks => blocks.map(block => block.txid)),
+        .then(blocks => flatten(blocks.map(block => block.txid))),
 
     deleteAddressTransaction: ({ addr, txid }) =>
       db.collection(addr)
-        .deleteOne({ txid })
+        .deleteOne({ txid }),
+
+    disconnect: () => client.close()
+  }
+
+  if (exposeClient) {
+    api.client = client
   }
 
   return api
 }
 
 // Initialize the Mongo client, collections and return the indexer API object
-const createClient = ({ url, dbName }, maxBlocks) =>
+const createClient = ({ url, dbName }, maxBlocks, exposeClient) =>
   createClientFor(url)
     .then(initCollections(dbName))
-    .then(createApi(dbName, maxBlocks))
+    .then(createApi(dbName, maxBlocks, exposeClient))
 
 module.exports = createClient
