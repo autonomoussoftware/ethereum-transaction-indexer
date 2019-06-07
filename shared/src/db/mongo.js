@@ -82,7 +82,7 @@ const createApi = (dbName, maxBlocks, exposeClient) => function (client) {
 
     deleteAddressTransaction: ({ addr, txid }) =>
       db.collection(addr)
-        .deleteOne({ txid }),
+        .updateOne({ txid }, { $pull: { txid } }),
 
     disconnect: () => client.close()
   }
