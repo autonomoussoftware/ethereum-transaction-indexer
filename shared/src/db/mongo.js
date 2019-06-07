@@ -1,6 +1,5 @@
 'use strict'
 
-const { flatten } = require('lodash')
 const beforeExit = require('before-exit')
 const logger = require('../logger')
 const MongoClient = require('mongodb').MongoClient
@@ -66,23 +65,21 @@ const createApi = (dbName, maxBlocks, exposeClient) => function (client) {
       ),
 
     setAddressTransaction: ({ addr, number, txid }) =>
-      db.collection(addr).createIndex('number', { background: true })
+      db.collection(addr)
+        .insertOne({ number, txid })
         .then(() => db.collection(addr)
-          .updateOne(
-            { number },
-            { $addToSet: { txid } },
-            { upsert: true }
-          )),
+          .createIndex('number', { background: true })
+        ),
 
     getAddressTransactions: ({ addr, min, max }) =>
       db.collection(addr)
         .find({ number: { $gte: min, $lte: max } })
         .toArray()
-        .then(blocks => flatten(blocks.map(block => block.txid))),
+        .then(blocks => blocks.map(block => block.txid)),
 
     deleteAddressTransaction: ({ addr, txid }) =>
       db.collection(addr)
-        .updateOne({ txid }, { $pull: { txid } }),
+        .deleteOne({ txid }),
 
     disconnect: () => client.close()
   }
