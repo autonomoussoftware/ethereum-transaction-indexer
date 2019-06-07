@@ -25,9 +25,12 @@ const initCollections = dbName => function (client) {
     process.kill(process.pid, 'SIGINT')
   })
 
-  return db.createCollection('bestBlock', { capped: true, size: 1024, max: 1 })
+  return Promise.all([
+    db.createCollection('bestBlock', { capped: true, size: 1024, max: 1 }),
+    db.collection('blocks').createIndex('number', { background: true })
+  ])
     .catch(function (err) {
-      logger.warn('Could not create bestBlock collection: %s', err.message)
+      logger.warn('Could not configure collections: %s', err.message)
     })
     .then(() => client)
 }
