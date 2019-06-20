@@ -4,10 +4,6 @@
 # Configuration
 config/local.json
 
-# Logs
-log/*
-!log/.gitkeep
-
 # NPM
 node_modules
 npm-debug.log

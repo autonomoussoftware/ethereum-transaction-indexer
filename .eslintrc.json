@@ -4,6 +4,14 @@
   },
   "extends": [
     "bloq",
-    "bloq/experimental"
-  ]
+    "plugin:require-path-exists/recommended"
+  ],
+  "plugins": [
+    "require-path-exists"
+  ],
+  "rules": {
+    "promise/no-promise-in-callback": "off",
+    "promise/no-return-in-finally": "off",
+    "require-jsdoc": "off"
+  }
 }

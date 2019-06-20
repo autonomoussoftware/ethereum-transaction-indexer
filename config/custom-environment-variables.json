@@ -1,10 +1,13 @@
 {
-  "defaultToken": "DEFAULT_TOKEN",
+  "dbEngine": "DB_ENGINE",
   "enode": {
     "ipcPath": "ENODE_IPC_PATH",
-    "wsApiUrl": "ENODE_WS_API_URL"
+    "wsPath": "ENODE_WS_PATH"
   },
   "logger": {
+    "Console": {
+      "level": "LOGGER_CONSOLE_LEVEL"
+    },
     "Papertrail": {
       "host": "LOGGER_PAPERTRAIL_HOST",
       "port": "LOGGER_PAPERTRAIL_PORT",
@@ -12,14 +15,13 @@
       "level": "LOGGER_PAPERTRAIL_LEVEL"
     }
   },
-  "newRelic": {
-    "appName": "NEW_RELIC_APP_NAME",
-    "licenseKey": "NEW_RELIC_LICENSE_KEY",
-    "loggingLevel": "NEW_RELIC_LOGGING_LEVEL"
+  "mongo": {
+    "url": "MONGO_URL",
+    "dbName": "MONGO_DB_NAME"
   },
-  "pauseOnError": "INDEXER_DELAY_ON_ERROR",
   "port": "PORT",
   "redis": {
     "url": "REDIS_URL"
-  }
+  },
+  "syncTimerSec": "SYNC_TIMER_SEC"
 }
