@@ -1,6 +1,5 @@
 'use strict'
 
-const { flatten } = require('lodash')
 const beforeExit = require('before-exit')
 const logger = require('../logger')
 const MongoClient = require('mongodb').MongoClient
@@ -25,9 +24,12 @@ const initCollections = dbName => function (client) {
     process.kill(process.pid, 'SIGINT')
   })
 
-  return db.createCollection('bestBlock', { capped: true, size: 1024, max: 1 })
+  return Promise.all([
+    db.createCollection('bestBlock', { capped: true, size: 1024, max: 1 }),
+    db.collection('blocks').createIndex('number', { background: true })
+  ])
     .catch(function (err) {
-      logger.warn('Could not create bestBlock collection: %s', err.message)
+      logger.warn('Could not configure collections: %s', err.message)
     })
     .then(() => client)
 }
@@ -63,19 +65,17 @@ const createApi = (dbName, maxBlocks, exposeClient) => function (client) {
       ),
 
     setAddressTransaction: ({ addr, number, txid }) =>
-      db.collection(addr).createIndex('number', { background: true })
+      db.collection(addr)
+        .insertOne({ number, txid })
         .then(() => db.collection(addr)
-          .updateOne(
-            { number },
-            { $addToSet: { txid } },
-            { upsert: true }
-          )),
+          .createIndex('number', { background: true })
+        ),
 
     getAddressTransactions: ({ addr, min, max }) =>
       db.collection(addr)
         .find({ number: { $gte: min, $lte: max } })
         .toArray()
-        .then(blocks => flatten(blocks.map(block => block.txid))),
+        .then(blocks => blocks.map(block => block.txid)),
 
     deleteAddressTransaction: ({ addr, txid }) =>
       db.collection(addr)
