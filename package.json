@@ -14,9 +14,10 @@
     "indexer": "node indexer/server.js",
     "lint": "eslint --cache .",
     "precommit": "npm run lint",
-    "prepare": "patch-package",
+    "prepare": "npm run snyk-protect && patch-package",
     "prepush": "npm run check && npm run test",
-    "test": "mocha indexer/lib/@bloq/next-block/test indexer/test shared/test --exit"
+    "test": "mocha indexer/lib/@bloq/next-block/test indexer/test shared/test --exit",
+    "snyk-protect": "snyk protect"
   },
   "dependencies": {
     "@bloq/service-logger": "git://github.com/bloq/service-logger.git",
@@ -39,7 +40,8 @@
     "websocket-reconnector": "1.1.1",
     "winston": "2.4.4",
     "winston-papertrail": "1.0.5",
-    "winston-sentry-transport": "1.0.0"
+    "winston-sentry-transport": "1.0.0",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "chai": "4.2.0",
@@ -65,5 +67,6 @@
     "promise-prototype-finally": "1.0.0",
     "proxyquire": "2.1.0",
     "redis-mock": "0.44.0"
-  }
+  },
+  "snyk": true
 }
