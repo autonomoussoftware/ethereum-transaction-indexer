@@ -22,7 +22,7 @@
     "@bloq/service-logger": "git://github.com/bloq/service-logger.git",
     "before-exit": "1.0.0",
     "config": "1.30.0",
-    "lodash": "4.17.11",
+    "lodash": "4.17.16",
     "mongodb": "3.2.2",
     "p-memoize": "1.0.0",
     "promise-all-props": "1.0.1",
